@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Marvel Movies</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css"/>
+        <link rel="stylesheet" href="css/bootstrap-theme.min.css" type="text/css"/>
+        <link rel="stylesheet" href="css/bootstrap.icon-large.min.css" type="text/css"/>
+        <link rel="stylesheet" href="css/jquery.tipsy.css" type="text/css"/>
+        <link href="css/d3tip.css" rel="stylesheet" type="text/css"/>
+        <script type="text/javascript" src="js/jquery-1.10.1.min.js"></script>
+        <script type="text/javascript" src="js/jquery.tipsy.js"></script>
+        <script type="text/javascript" src="js/fancybox2/source/jquery.fancybox.pack.js"></script>
+        <script type="text/javascript" src="js/d3.v3.min.js"></script>
+        <script src="js/page.js" type="text/javascript"></script>
+        <script type="text/javascript" src="js/graphPlugins.js"></script>
+        <script src="js/d3-tip.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 header" style="margin-top: 50px;">
+                <h1>Marvel Movies</h1>
+            </div>
+            <div class="col-lg-2" style="margin-top: 50px;">
+                
+            </div>
+            <div class="col-lg-offset-2 col-lg-8 content" style="margin-top: 30px;">
+                <form class="form-inline" id="graphfilter">
+                    <div class="form-group" style="position: relative;margin-right: 20px;">
+                        <input class="form-control" type="text" name="movie" id="movie" placeholder="Movie"/>
+                        <div id="suggest" style="position: absolute; top: 100%;">
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="linkparam">Connected by:</label>
+                        <select class="form-control" id="linkparam" name="linkparam">
+                            <option value="" selected>Anything</option>
+                            <option value="movie">Movie</option>
+                            <option value="star">Stars</option>
+                            <option value="director">Director</option>
+                            <option value="character">Character</option>
+                        </select>
+                    </div>
+                    <a href="#" class="btn btn-primary" id="clear">Clear</a>
+                </form>
+                <div id="grapharea" data-url="./data/movielist.json" class="col-lg-12" style="min-height: 500px;margin-top: 20px;">
+                    
+                </div>
+            </div>
+            <div class="col-lg-2 d3-tip" id="infohover" style="display: none;position: relative;float: left;margin-top: 50px;pointer-events: all;">
+                
+            </div>
+            <div class="col-lg-2 d3-tip" id="infoactive" style="margin-top: 20px;display: none;pointer-events: all;">
+                
+            </div>
+            <div class="col-lg-offset-2 col-lg-8 footer" style="min-height: 50px;position: relative;float: left;"> 
+
+            </div>
+        </div>
+    </body>
+</html>
