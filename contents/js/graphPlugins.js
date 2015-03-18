@@ -33,25 +33,16 @@ var graphPlugins = {
             colors : ["#19FFBB","#0090D9","#E400FF"],textColor: div.attr("data-textcolor") || 'black',
             rmin: parseInt(div.attr("data-rmin")) || 2, rmax : parseInt(div.attr("data-rmax")) || 10,
             w : $div.width(),h : $div.height(),minrating: 0.01,
-            linkDistance: 10, linkStrength: 0.1,zoom: 1
+            linkDistance: 10, linkStrength: 0.1,
+            zoom: 1.0, zoomMin: 0.8, zoomMax: 8.0, zoomStep: 0.2
         };
+        
         var rScale = d3.scale.sqrt().range([config.rmin,config.rmax]);
         var url = div.attr("data-url");
-        var svg = div.append('svg');
+        var svg = div.select('svg');
         svg.attr("width",config.w);
         svg.attr("height",config.h);
         var gnodes = svg.selectAll("g.node"), gedges = svg.selectAll("line.edge"),activeNode = null;
-//        var tip = d3.tip().attr('class', 'd3-tip').html(function(d) { 
-//            if(!d.tooltip || !d.tooltip.length) return "<span><strong>"+d.name+"</strong></span>";
-//            var html = "";
-//            for(var i=0;i<d.tooltip.length;i++){
-//                var text = d.tooltip[i].url ? "<a href='"+d.tooltip[i].url+"' target='_blank'>"+d[d.tooltip[i].key]+"</a>" : d[d.tooltip[i].key];
-//                if(d.tooltip[i].label)
-//                    html += "<span class='title'> "+d.tooltip[i].label+":</span> " ; 
-//                html += text+"<br />";
-//            }
-//            return html;
-//        });
         
         var tip = {
             getHtml: function(d,title){
@@ -180,13 +171,17 @@ var graphPlugins = {
                 gnodes.style('stroke',function(d){ return activeNode && d.id === activeNode.id ? 'red' : '' ;})
                       .style("stroke-width",function(d){ return activeNode && d.id === activeNode.id ? '3px' : '0x' ;});
                 gnodes.selectAll("circle.bubble").transition().duration(500)
-                    .attr("r",function(d){ return rScale(d.rating+0.001) * d.zoom * d.active; });
+                    .attr("r",function(d){
+                        d.r = rScale(d.rating+0.001);
+                        return d.r * d.zoom * d.active; 
+                    });
                 filter.setOpacity();
                 force.alpha(0.1).start();
             }
         };
         
         var tick = function(e){
+            if(force.alpha()<0.025) force.alpha(0);
             gnodes.attr("transform",function(d){ return "translate("+d.x+","+d.y+")"; });
             gedges.attr("x1", function(d) { return d.source.x; })
                 .attr("y1", function(d) { return d.source.y; })
@@ -203,7 +198,7 @@ var graphPlugins = {
             .linkStrength(function(d){
                 return config.linkStrength/d.zoom/config.zoom;
             }).linkDistance(function(d){
-                return config.linkDistance*config.zoom;
+                return config.linkDistance*config.zoom*config.zoom;
             }).charge(function(d){
                 return -30*(d.zoom+config.minrating)*d.active;
             }).size([config.w-2*config.rmax,config.h-2*config.rmax])
@@ -231,7 +226,7 @@ var graphPlugins = {
                 }
             }
             fc.active = 1;
-            filter.layout(20);
+            filter.layout(3);
         };
         
         var updateMovie = function(){
@@ -239,6 +234,8 @@ var graphPlugins = {
                 selectMovie(nodes.get($("input#movie").val(),'movie'));
         };
         
+        
+        //Page Events
         $("input#movie").keyup(function(e){
             e.preventDefault();
             e.stopPropagation();
@@ -252,10 +249,42 @@ var graphPlugins = {
             e.preventDefault();
             filter.enableAll();
             activeNode = null;
+            tip.showActive();
             config.zoom = 1;
             $("input#movie").val("");
             $("select#linkparam").val("");
             filter.layout(1);
+        });
+        
+        //Mouse zoom/drag events
+        var mousedown = false,mousePos = {
+            down: {x: config.w/2,y: config.h/2},curr: {x: config.w/2,y: config.h/2}
+        };
+        $div.mousewheel(function(e,s){
+            e.preventDefault();
+            e.stopPropagation();
+            var off = $(this).offset();
+            if(s > 0) zoom(1,e.pageX-off.left,e.pageY-off.top);
+            else zoom(-1,e.pageX-off.left,e.pageY-off.top);
+        }).mouseup(function(){
+            mousedown=false;
+            $(this).css({"cursor":"auto"});
+        }).mousedown(function(e){
+            mousedown=true;
+            var off = $(this).offset();
+            mousePos.down.x=e.pageX-off.left;
+            mousePos.down.y=e.pageY-off.top;
+            $(this).css({"cursor":"move"});
+        }).mousemove(function(e){
+            var off = $(this).offset();
+            mousePos.curr.x=e.pageX-off.left;
+            mousePos.curr.y=e.pageY-off.top;
+            if(mousedown){
+                var x = mousePos.curr.x-mousePos.down.x, y = mousePos.curr.y-mousePos.down.y;
+                drag(x,y);
+                mousePos.down.x = mousePos.curr.x;
+                mousePos.down.y = mousePos.curr.y;
+            }
         });
         
         var edgeHighlight = function(d,highlight){
@@ -273,6 +302,7 @@ var graphPlugins = {
             filter.setOpacity();
         };
         
+        //Creates graph afresh from data available in force
         var refreshGraph = function(){
             //Render edges
             gedges = gedges.data(force.links()).enter().append('line')
@@ -301,7 +331,10 @@ var graphPlugins = {
             var circle = gnodes.append('circle').attr("class","bubble");
             circle.attr("fill",function(d){ return d.color; })
                 .attr('r',0).attr("stroke-width", 2)
-                .transition().duration(500).attr("r",function(d){ return rScale(d.rating)*d.zoom; });
+                .transition().duration(500).attr("r",function(d){
+                    d.r = rScale(d.rating);
+                    return d.r*d.zoom; 
+                });
 //            circle.call(tip);
             circle.on("mouseover",function(d){
                 tip.hide();
@@ -309,11 +342,13 @@ var graphPlugins = {
                 edgeHighlight(d,true);
             }).on("mouseout",function(d){
                 edgeHighlight(d,false);
+                tip.hide();
                 if(activeNode) edgeHighlight(activeNode,true);
 //                window.setTimeout(function(){
 //                    if($("div.d3-tip").text().indexOf(d.name)>-1) tip.hide(d);
 //                },3000);
             }).on("click",function(d){
+                console.log(d);
                 activeNode = d;
                 edgeHighlight(d,true);
                 tip.showActive();
@@ -334,6 +369,58 @@ var graphPlugins = {
             gnodes.selectAll('text').remove();
             gnodes.call(force.drag);
             force.alpha(0.1).start();
+        };
+        
+        var zoom = function(factor,mx,my){
+//            console.log(config.zoom, config.zoomMax,config.zoomMin,factor,force.alpha());
+            if( force.alpha()>0 || !factor ||
+                    (config.zoom >= config.zoomMax && factor > 0 ) ||
+                    (config.zoom <= config.zoomMin && factor < 0 )
+                ) return false;
+        
+            var zprev = config.zoom;
+            config.zoom += ( factor*config.zoomStep ) / Math.abs(factor);
+//            $(config.slider).slider({"value":config.zoom});
+            var f = config.zoom / zprev, x = mx || config.w/2, y = my || config.h/2;
+            console.log(f,x,y);
+            gnodes.selectAll('circle').attr("r",function(d){
+                d.r *= f;
+                return d.r*d.zoom;
+            });
+            gnodes.attr("transform",function(d){ 
+                d.x = x+f*(d.x-x);
+                d.y = y+f*(d.y-y); 
+                return "translate("+d.x+","+d.y+")"; 
+            });
+            gedges.attr("x1", function(d) { 
+                    return d.source.x;
+                }).attr("y1", function(d) {
+                    return d.source.y;
+                }).attr("x2", function(d) {
+                    return d.target.x;
+                }).attr("y2", function(d) { 
+                    return d.target.y;
+                });
+            return true;
+        };
+        
+        var drag = function(x,y){
+            if(force.alpha()>0) return;
+            gnodes.attr("transform",function(d){ 
+                d.x += x;
+                d.y += y; 
+                return "translate("+d.x+","+d.y+")"; 
+            });
+            gedges.attr("x1", function(d) { 
+                return d.source.x;
+            }).attr("y1", function(d) {
+                return d.source.y;
+            }).attr("x2", function(d) {
+                return d.target.x;
+            }).attr("y2", function(d) { 
+                return d.target.y;
+            });
+            return true;
         };
         
         //Load Data
@@ -438,16 +525,4 @@ $(document).ready(function(){
     $("form#graphfilter").submit(function(e){
         e.preventDefault();
     });
-//    d3.selectAll(".streamgraph").each(function(){
-//        graphPlugins.streamGraph(this);
-//    });
-//    d3.selectAll(".bargraph").each(function(){
-//        graphPlugins.barGraph(this);
-//    });
-//    d3.selectAll(".bargraphgeneric").each(function(){
-//        graphPlugins.barGraphGeneric(this);
-//    });
-//    d3.selectAll(".sungraph").each(function(){
-//        graphPlugins.sunburstGraph(this);
-//    });
 });
