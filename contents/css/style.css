@@ -1,0 +1,12 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 21 Jan, 2015, 5:28:57 PM
+    Author     : shani
+*/
+div#grapharea{
+    box-shadow: 0px 0px 2px #ccc;border : 1px solid #ddd;
+}

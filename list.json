@@ -1,0 +1,643 @@
+[
+    {
+        "name": "Howard the Duck\n    (1986)",
+        "year": "(1986)",
+        "director": "Willard Huyck",
+        "stars": [
+            "Lea Thompson",
+            "Jeffrey Jones",
+            "Tim Robbins",
+            "Ed Gale"
+        ],
+        "rating": "4.5"
+    },
+    {
+        "name": "The Punisher\n    (1989)",
+        "year": "(1989)",
+        "director": "Mark Goldblatt",
+        "stars": [
+            "Dolph Lundgren",
+            "Louis Gossett Jr.",
+            "Jeroen Krabbé",
+            "Kim Miyori"
+        ],
+        "rating": "5.6"
+    },
+    {
+        "name": "Captain America\n    (1990)",
+        "year": "(1990)",
+        "director": "Albert Pyun",
+        "stars": [
+            "Matt Salinger",
+            "Ronny Cox",
+            "Ned Beatty",
+            "Darren McGavin"
+        ],
+        "rating": "3.2"
+    },
+    {
+        "name": "The Fantastic Four\n    (1994)",
+        "year": "(1994)",
+        "director": "Oley Sassone",
+        "stars": [
+            "Alex Hyde-White",
+            "Jay Underwood",
+            "Rebecca Staab",
+            "Michael Bailey Smith"
+        ],
+        "rating": "3.9"
+    },
+    {
+        "name": "Blade\n    (1998)",
+        "year": "(1998)",
+        "director": "Stephen Norrington",
+        "stars": [
+            "Wesley Snipes",
+            "Stephen Dorff",
+            "Kris Kristofferson",
+            "N'Bushe Wright"
+        ],
+        "rating": "7.1"
+    },
+    {
+        "name": "X-Men\n    (2000)",
+        "year": "(2000)",
+        "director": "Bryan Singer",
+        "stars": [
+            "Patrick Stewart",
+            "Hugh Jackman",
+            "Ian McKellen",
+            "Famke Janssen"
+        ],
+        "rating": "7.4"
+    },
+    {
+        "name": "Blade II\n    (2002)",
+        "year": "(2002)",
+        "director": "Guillermo del Toro",
+        "stars": [
+            "Wesley Snipes",
+            "Kris Kristofferson",
+            "Ron Perlman",
+            "Leonor Varela"
+        ],
+        "rating": "6.7"
+    },
+    {
+        "name": "Spider-Man\n    (2002)",
+        "year": "(2002)",
+        "director": "Sam Raimi",
+        "stars": [
+            "Tobey Maguire",
+            "Kirsten Dunst",
+            "Willem Dafoe",
+            "James Franco"
+        ],
+        "rating": "7.3"
+    },
+    {
+        "name": "Daredevil\n    (2003)",
+        "year": "(2003)",
+        "director": "Mark Steven Johnson",
+        "stars": [
+            "Ben Affleck",
+            "Jennifer Garner",
+            "Colin Farrell",
+            "Michael Clarke Duncan"
+        ],
+        "rating": "5.4"
+    },
+    {
+        "name": "X2\n    (2003)",
+        "year": "(2003)",
+        "director": "Bryan Singer",
+        "stars": [
+            "Patrick Stewart",
+            "Hugh Jackman",
+            "Halle Berry",
+            "Ian McKellen"
+        ],
+        "rating": "7.5"
+    },
+    {
+        "name": "Hulk\n    (2003)",
+        "year": "(2003)",
+        "director": "Ang Lee",
+        "stars": [
+            "Eric Bana",
+            "Jennifer Connelly",
+            "Sam Elliott",
+            "Josh Lucas"
+        ],
+        "rating": "5.7"
+    },
+    {
+        "name": "The Punisher\n    (2004)",
+        "year": "(2004)",
+        "director": "Jonathan Hensleigh",
+        "stars": [
+            "Thomas Jane",
+            "John Travolta",
+            "Samantha Mathis",
+            "Laura Harring"
+        ],
+        "rating": "6.5"
+    },
+    {
+        "name": "Spider-Man 2\n    (2004)",
+        "year": "(2004)",
+        "director": "Sam Raimi",
+        "stars": [
+            "Tobey Maguire",
+            "Kirsten Dunst",
+            "Alfred Molina",
+            "James Franco"
+        ],
+        "rating": "7.4"
+    },
+    {
+        "name": "Blade: Trinity\n    (2004)",
+        "year": "(2004)",
+        "director": "David S. Goyer",
+        "stars": [
+            "Wesley Snipes",
+            "Kris Kristofferson",
+            "Parker Posey",
+            "Ryan Reynolds"
+        ],
+        "rating": "5.9"
+    },
+    {
+        "name": "Elektra\n    (2005)",
+        "year": "(2005)",
+        "director": "Rob Bowman",
+        "stars": [
+            "Jennifer Garner",
+            "Goran Visnjic",
+            "Will Yun Lee",
+            "Kirsten Prout"
+        ],
+        "rating": "4.8"
+    },
+    {
+        "name": "Fantastic Four\n    (2005)",
+        "year": "(2005)",
+        "director": "Tim Story",
+        "stars": [
+            "Ioan Gruffudd",
+            "Michael Chiklis",
+            "Chris Evans",
+            "Jessica Alba"
+        ],
+        "rating": "5.7"
+    },
+    {
+        "name": "X-Men: The Last Stand\n    (2006)",
+        "year": "(2006)",
+        "director": "Brett Ratner",
+        "stars": [
+            "Patrick Stewart",
+            "Hugh Jackman",
+            "Halle Berry",
+            "Famke Janssen"
+        ],
+        "rating": "6.8"
+    },
+    {
+        "name": "Ghost Rider\n    (2007)",
+        "year": "(2007)",
+        "director": "Mark Steven Johnson",
+        "stars": [
+            "Nicolas Cage",
+            "Eva Mendes",
+            "Sam Elliott",
+            "Matt Long"
+        ],
+        "rating": "5.2"
+    },
+    {
+        "name": "Spider-Man 3\n    (2007)",
+        "year": "(2007)",
+        "director": "Sam Raimi",
+        "stars": [
+            "Tobey Maguire",
+            "Kirsten Dunst",
+            "Topher Grace",
+            "Thomas Haden Church"
+        ],
+        "rating": "6.2"
+    },
+    {
+        "name": "Fantastic 4: Rise of the Silver Surfer\n    (2007)",
+        "year": "(2007)",
+        "director": "Tim Story",
+        "stars": [
+            "Ioan Gruffudd",
+            "Jessica Alba",
+            "Chris Evans",
+            "Michael Chiklis"
+        ],
+        "rating": "5.6"
+    },
+    {
+        "name": "Iron Man\n    (2008)",
+        "year": "(2008)",
+        "director": "Jon Favreau",
+        "stars": [
+            "Robert Downey Jr.",
+            "Gwyneth Paltrow",
+            "Terrence Howard",
+            "Jeff Bridges"
+        ],
+        "rating": "7.9"
+    },
+    {
+        "name": "The Incredible Hulk\n    (2008)",
+        "year": "(2008)",
+        "director": "Louis Leterrier",
+        "stars": [
+            "Edward Norton",
+            "Liv Tyler",
+            "Tim Roth",
+            "William Hurt"
+        ],
+        "rating": "6.9"
+    },
+    {
+        "name": "Punisher: War Zone\n    (2008)",
+        "year": "(2008)",
+        "director": "Lexi Alexander",
+        "stars": [
+            "Ray Stevenson",
+            "Dominic West",
+            "Julie Benz",
+            "Doug Hutchison"
+        ],
+        "rating": "6.0"
+    },
+    {
+        "name": "X-Men Origins: Wolverine\n    (2009)",
+        "year": "(2009)",
+        "director": "Gavin Hood",
+        "stars": [
+            "Hugh Jackman",
+            "Liev Schreiber",
+            "Ryan Reynolds",
+            "Danny Huston"
+        ],
+        "rating": "6.7"
+    },
+    {
+        "name": "Iron Man 2\n    (2010)",
+        "year": "(2010)",
+        "director": "Jon Favreau",
+        "stars": [
+            "Robert Downey Jr.",
+            "Mickey Rourke",
+            "Gwyneth Paltrow",
+            "Don Cheadle"
+        ],
+        "rating": "7.1"
+    },
+    {
+        "name": "Thor\n    (2011)",
+        "year": "(2011)",
+        "director": "Kenneth Branagh",
+        "stars": [
+            "Chris Hemsworth",
+            "Anthony Hopkins",
+            "Natalie Portman",
+            "Tom Hiddleston"
+        ],
+        "rating": "7.0"
+    },
+    {
+        "name": "X-Men: First Class\n    (2011)",
+        "year": "(2011)",
+        "director": "Matthew Vaughn",
+        "stars": [
+            "James McAvoy",
+            "Michael Fassbender",
+            "Jennifer Lawrence",
+            "Kevin Bacon"
+        ],
+        "rating": "7.8"
+    },
+    {
+        "name": "Captain America: The First Avenger\n    (2011)",
+        "year": "(2011)",
+        "director": "Joe Johnston",
+        "stars": [
+            "Chris Evans",
+            "Hugo Weaving",
+            "Samuel L. Jackson",
+            "Hayley Atwell"
+        ],
+        "rating": "6.8"
+    },
+    {
+        "name": "Ghost Rider: Spirit of Vengeance\n    (2011)",
+        "year": "(2011)",
+        "director": "Neveldine",
+        "stars": [
+            "Nicolas Cage",
+            "Ciarán Hinds",
+            "Idris Elba",
+            "Violante Placido"
+        ],
+        "rating": "4.3"
+    },
+    {
+        "name": "The Avengers\n    (2012)",
+        "year": "(2012)",
+        "director": "Joss Whedon",
+        "stars": [
+            "Robert Downey Jr.",
+            "Chris Evans",
+            "Scarlett Johansson",
+            "Jeremy Renner"
+        ],
+        "rating": "8.2"
+    },
+    {
+        "name": "The Amazing Spider-Man\n    (2012)",
+        "year": "(2012)",
+        "director": "Marc Webb",
+        "stars": [
+            "Andrew Garfield",
+            "Emma Stone",
+            "Rhys Ifans",
+            "Irrfan Khan"
+        ],
+        "rating": "7.1"
+    },
+    {
+        "name": "Iron Man 3\n    (2013)",
+        "year": "(2013)",
+        "director": "Shane Black",
+        "stars": [
+            "Robert Downey Jr.",
+            "Guy Pearce",
+            "Gwyneth Paltrow",
+            "Don Cheadle"
+        ],
+        "rating": "7.3"
+    },
+    {
+        "name": "The Wolverine\n    (2013)",
+        "year": "(2013)",
+        "director": "James Mangold",
+        "stars": [
+            "Hugh Jackman",
+            "Will Yun Lee",
+            "Tao Okamoto",
+            "Rila Fukushima"
+        ],
+        "rating": "6.7"
+    },
+    {
+        "name": "Thor: The Dark World\n    (2013)",
+        "year": "(2013)",
+        "director": "Alan Taylor",
+        "stars": [
+            "Chris Hemsworth",
+            "Natalie Portman",
+            "Tom Hiddleston",
+            "Stellan Skarsgård"
+        ],
+        "rating": "7.1"
+    },
+    {
+        "name": "Captain America: The Winter Soldier\n    (2014)",
+        "year": "(2014)",
+        "director": "Anthony Russo",
+        "stars": [
+            "Chris Evans",
+            "Samuel L. Jackson",
+            "Scarlett Johansson",
+            "Robert Redford"
+        ],
+        "rating": "7.8"
+    },
+    {
+        "name": "The Amazing Spider-Man 2\n    (2014)",
+        "year": "(2014)",
+        "director": "Marc Webb",
+        "stars": [
+            "Andrew Garfield",
+            "Emma Stone",
+            "Jamie Foxx",
+            "Paul Giamatti"
+        ],
+        "rating": "6.9"
+    },
+    {
+        "name": "X-Men: Days of Future Past\n    (2014)",
+        "year": "(2014)",
+        "director": "Bryan Singer",
+        "stars": [
+            "Patrick Stewart",
+            "Ian McKellen",
+            "Hugh Jackman",
+            "James McAvoy"
+        ],
+        "rating": "8.1"
+    },
+    {
+        "name": "Guardians of the Galaxy\n    (2014)",
+        "year": "(2014)",
+        "director": "James Gunn",
+        "stars": [
+            "Chris Pratt",
+            "Vin Diesel",
+            "Bradley Cooper",
+            "Zoe Saldana"
+        ],
+        "rating": "8.2"
+    },
+    {
+        "name": "Avengers: Age of Ultron\n    (2015)",
+        "year": "(2015)",
+        "director": "Joss Whedon",
+        "stars": [
+            "Robert Downey Jr.",
+            "Chris Evans",
+            "Mark Ruffalo",
+            "Chris Hemsworth"
+        ],
+        "rating": ""
+    },
+    {
+        "name": "Ant-Man\n    (2015)",
+        "year": "(2015)",
+        "director": "Peyton Reed",
+        "stars": [
+            "Paul Rudd",
+            "Evangeline Lilly",
+            "Hayley Atwell",
+            "Michael Peña"
+        ],
+        "rating": ""
+    },
+    {
+        "name": "Fantastic Four\n    (2015)",
+        "year": "(2015)",
+        "director": "Josh Trank",
+        "stars": [
+            "Miles Teller",
+            "Kate Mara",
+            "Michael B. Jordan",
+            "Jamie Bell"
+        ],
+        "rating": ""
+    },
+    {
+        "name": "Deadpool\n    (2016)",
+        "year": "(2016)",
+        "director": "Tim Miller",
+        "stars": [
+            "Morena Baccarin",
+            "T.J. Miller",
+            "Ryan Reynolds",
+            "Gina Carano"
+        ],
+        "rating": ""
+    },
+    {
+        "name": "Captain America: Civil War\n    (2016)",
+        "year": "(2016)",
+        "director": "Anthony Russo",
+        "stars": [
+            "Scarlett Johansson",
+            "Chris Evans",
+            "Robert Downey Jr.",
+            "Sebastian Stan"
+        ],
+        "rating": ""
+    },
+    {
+        "name": "X-Men: Apocalypse\n    (2016)",
+        "year": "(2016)",
+        "director": "Bryan Singer",
+        "stars": [
+            "Jennifer Lawrence",
+            "Sophie Turner",
+            "Channing Tatum",
+            "Evan Peters"
+        ],
+        "rating": ""
+    },
+    {
+        "name": "Gambit\n    (2016)",
+        "year": "(2016)",
+        "director": "",
+        "stars": [
+            "Channing Tatum"
+        ],
+        "rating": ""
+    },
+    {
+        "name": "Doctor Strange\n    (2016)",
+        "year": "(2016)",
+        "director": "Scott Derrickson",
+        "stars": [
+            "Benedict Cumberbatch",
+            "Chiwetel Ejiofor"
+        ],
+        "rating": ""
+    },
+    {
+        "name": "Untitled Wolverine Sequel\n    (2017)",
+        "year": "(2017)",
+        "director": "James Mangold",
+        "stars": [
+            "Hugh Jackman",
+            "Patrick Stewart"
+        ],
+        "rating": ""
+    },
+    {
+        "name": "Guardians of the Galaxy 2\n    (2017)",
+        "year": "(2017)",
+        "director": "James Gunn",
+        "stars": [],
+        "rating": ""
+    },
+    {
+        "name": "The Fantastic Four 2\n    (2017)",
+        "year": "(2017)",
+        "director": "Josh Trank",
+        "stars": [
+            "Miles Teller",
+            "Kate Mara",
+            "Jamie Bell",
+            "Michael B. Jordan"
+        ],
+        "rating": ""
+    },
+    {
+        "name": "Untitled Spider-Man Reboot\n    (2017)",
+        "year": "(2017)",
+        "director": "Drew Goddard",
+        "stars": [],
+        "rating": ""
+    },
+    {
+        "name": "Thor: Ragnarok\n    (2017)",
+        "year": "(2017)",
+        "director": "",
+        "stars": [
+            "Chris Hemsworth",
+            "Tom Hiddleston"
+        ],
+        "rating": ""
+    },
+    {
+        "name": "Avengers: Infinity War - Part I\n    (2018)",
+        "year": "(2018)",
+        "director": "",
+        "stars": [],
+        "rating": ""
+    },
+    {
+        "name": "Black Panther\n    (2018)",
+        "year": "(2018)",
+        "director": "",
+        "stars": [
+            "Andy Serkis",
+            "Chadwick Boseman"
+        ],
+        "rating": ""
+    },
+    {
+        "name": "Captain Marvel\n    (2018)",
+        "year": "(2018)",
+        "director": "",
+        "stars": [],
+        "rating": ""
+    },
+    {
+        "name": "Avengers: Infinity War - Part II\n    (2019)",
+        "year": "(2019)",
+        "director": "",
+        "stars": [],
+        "rating": ""
+    },
+    {
+        "name": "Inhumans\n    (2019)",
+        "year": "(2019)",
+        "director": "",
+        "stars": [],
+        "rating": ""
+    },
+    {
+        "name": "The Sinister Six\n    (2016)",
+        "year": "(2016)",
+        "director": "Drew Goddard",
+        "stars": [
+            "Chris Cooper",
+            "Michael Massee"
+        ],
+        "rating": ""
+    }
+]
