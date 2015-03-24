@@ -36,7 +36,9 @@ var graphPlugins = {
             linkDistance: 10, linkStrength: 0.1,
             zoom: 1.0, zoomMin: 0.8, zoomMax: 8.0, zoomStep: 0.2
         };
-        
+        var imgbApiUrl = function(node){
+            return "http://www.omdbapi.com/?i="+node.imdbid+"&plot=short&r=json";
+        };
         var rScale = d3.scale.sqrt().range([config.rmin,config.rmax]);
         var url = div.attr("data-url");
         var svg = div.select('svg');
@@ -50,10 +52,12 @@ var graphPlugins = {
                 if(!d.tooltip || !d.tooltip.length) return html+"<span><strong>"+d.name+"</strong></span>";
                 for(var i=0;i<d.tooltip.length;i++){
                     var text = d.tooltip[i].url ? "<a href='"+d.tooltip[i].url+"' target='_blank'>"+d[d.tooltip[i].key]+"</a>" : d[d.tooltip[i].key];
+                    html += "<div>";
                     if(d.tooltip[i].label)
                         html += "<span class='title'> "+d.tooltip[i].label+":</span> " ; 
-                    html += text+"<br />";
+                    html += text+"</div>";
                 }
+                html += "<div class='omdbinfo'><div class='ajaxloader'></span></div>";
                 return html;
             },
             show: function(d){
@@ -63,7 +67,27 @@ var graphPlugins = {
                 $("div#infohover").hide();
             },
             showActive: function(){
-                if(activeNode) $("div#infoactive").html(tip.getHtml(activeNode,"Active")).show();
+                if(activeNode){
+                    $("div#infoactive").html(tip.getHtml(activeNode,"Active")).show();
+                    if(activeNode.type==='movie'){
+                        $("div#infoactive").find(".omdbinfo .ajaxloader").fadeIn("fast");
+                        $.ajax({
+                            url : imgbApiUrl(activeNode),
+                            jsonp : true,
+                            before: function(){
+                                $("div#infoactive").find(".omdbinfo .ajaxloader").fadeIn("fast");
+                            },
+                            complete: function(){
+                                $("div#infoactive").find(".omdbinfo .ajaxloader").fadeOut("fast");
+                            },
+                            success: function(res){
+                                var data = JSON.parse(res);
+                                var html = "<a href='"+activeNode.url+"' target='_blank'><img src = '"+data.Poster+"' width='100%' height='200px' style='min-height:200px' /></a><p>"+data.Plot+"</p>";
+                                $("div#infoactive").find(".omdbinfo").html(html);
+                            }
+                        });
+                    }
+                }
                 else $("div#infoactive").hide();
             }
         };
@@ -222,7 +246,7 @@ var graphPlugins = {
             }
             if(!active || active==='director'){
                 for(var s in fc.starNodes){
-                    filter.enableConnected(fc.directorNode.id,'movie');
+                    filter.enableConnected(fc.director.id,'movie');
                 }
             }
             fc.active = 1;
@@ -440,30 +464,40 @@ var graphPlugins = {
                     {key: "rating", label: "Rating"}
                 ];
                 nodes.add(d);
-                var director = {name: d.director, type: 'director', rating: 0,films: 0, color: 'black'};
-                director.tooltip = [
-                    {key: 'name' },
-                    {key: "rating", label: "Average Rating"}
-                ];
-                nodes.add(director);
-                edges.add(nodes.get(d.id),nodes.get(director.id));
-                d.directorNode = nodes.get(director.id);
-                d.directorNode.rating = (d.directorNode.rating*d.directorNode.films+d.rating)/(d.directorNode.films+1).toFixed(1);
-                d.directorNode.films++;
-                d.stars.forEach(function(s){
-                    var star = {name: s, type: 'star',rating: 0,  color: 'blue',films: 0};
-                    star.tooltip = [
+                if(d.director && d.director.name){
+                    d.director.type = 'director';
+                    d.director.rating = 0;
+                    d.director.films = 0;
+                    d.director.color = 'black';
+                    d.director.tooltip = [
                         {key: 'name' },
                         {key: "rating", label: "Average Rating"}
                     ];
-                    nodes.add(star);
-                    edges.add(nodes.get(d.id),nodes.get(star.id));
-                    d.starNodes[star.id] = nodes.get(star.id);
-                    d.starNodes[star.id].rating = (d.starNodes[star.id].rating * d.starNodes[star.id].films + d.rating)/(d.starNodes[star.id].films+1).toFixed(1);
-                    d.starNodes[star.id].films++;
+                    nodes.add(d.director);
+                    edges.add(nodes.get(d.id),nodes.get(d.director.id));
+                    d.director.rating = (d.director.rating*d.director.films+d.rating)/(d.director.films+1).toFixed(1);
+                    d.director.films++;
+                }
+                d.stars.forEach(function(s){
+                    s.type = 'star';
+                    s.rating = 0;
+                    s.color = 'blue';
+                    s.films = 0;
+                    s.tooltip = [
+                        {key: 'name' },
+                        {key: "rating", label: "Average Rating"}
+                    ];
+                    nodes.add(s);
+                    edges.add(nodes.get(d.id),nodes.get(s.id));
+                    d.starNodes[s.id] = s;
+                    d.starNodes[s.id].rating = (d.starNodes[s.id].rating * d.starNodes[s.id].films + d.rating)/(d.starNodes[s.id].films+1).toFixed(1);
+                    d.starNodes[s.id].films++;
                 });
-                d.characters.forEach(function(s){
-                    var character = {name: s, type: 'character',rating: 0, color: 'green',films: 0};
+                d.characters.forEach(function(character){
+                    character.type = 'character';
+                    character.rating = 0;
+                    character.color = 'green';
+                    character.films = 0;
                     character.tooltip = [
                         {key: 'name' },
                         {key: "films", label: "Found in movies"}
@@ -483,15 +517,15 @@ var graphPlugins = {
                         continue;
                     }
                     var w = 0;
-                    if(d.directorNode.id === data[j].directorNode.id) w++;
+                    if(d.director.id === data[j].director.id) w++;
                     d.stars.forEach(function(s1){
                         data[j].stars.forEach(function(s2){
-                            if(s1 === s2) w++;
+                            if(s1.id === s2.id) w++;
                         });
                     });
                     d.characters.forEach(function(c1){
                         data[j].characters.forEach(function(c2){
-                            if(c1 === c2) w++;
+                            if(c1.id === c2.id) w++;
                         });
                     });
                     if(w){

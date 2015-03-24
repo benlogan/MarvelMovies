@@ -7,7 +7,7 @@
  * Javascript file characters.js
  * *************************************************************** */
 
-var movies = require("../contents/data/movielist.json");
+var movies = require("../contents/data/movieslist_2.json");
 var pg = require("webpage");
 var page = pg.create();
 var jq = "../contents/js/jquery-1.10.1.min.js";
@@ -35,16 +35,26 @@ var scrape = function(i){
         }else{
             page.injectJs(jq);
             movies[i].characters = page.evaluate(function(){
-                var res = [];
+                var res = [],ids = [];
                 if(!$("td.character").size()) return [];
-                console.log('characters in page',$("td.character").size());
+//                console.log('characters in page',$("td.character").size());
                 $("td.character").each(function(){
-                    var a = $(this).find('a');
-                    var t = "";
-                    a.each(function(){  
-                        if($(this).text()) t += t ? " "+$(this).text() : $(this).text();
+                    var links = $(this).find('a');
+                    links.each(function(){  
+                        var a = $(this)
+                        if(a.text()) {
+                            var href = a.attr("href");
+                            var node = {
+                                url: href,
+                                imdbid: href.match(/ch\d+/) ? href.match(/ch\d+/)[0] : "",
+                                name : a.text()
+                            };
+                            if(node.imdbid && ids.indexOf(node.imdbid) === -1){
+                                res.push(node);
+                                ids.push(node.imdbid);
+                            }
+                        }
                     });
-                    if(t && res.indexOf(t)===-1) res.push(t);
                 });
                 return res;
             });

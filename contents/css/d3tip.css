@@ -3,7 +3,7 @@
   font-size: 11px;
   font-weight: bold;
   padding: 12px;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 1);
   color: red;
   border-radius: 2px;
   pointer-events: none;
@@ -62,5 +62,19 @@
 }
 
 .d3-tip a{
+    color: white;
+}
+.d3-tip div{
+    margin-top:5px;
+}
+div.ajaxloader{
+    background-image: url("../images/ajax-loader_blue.gif");
+    height: 24px;width: 24px;min-height: 16px;display: none;
+}
+div.omdbinfo{
+    margin-top: 10px;
+}
+div.omdbinfo *{
+    margin-top: 5px;
     color: white;
 }
