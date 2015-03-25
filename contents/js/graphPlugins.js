@@ -279,6 +279,16 @@ var graphPlugins = {
             $("select#linkparam").val("");
             filter.layout(1);
         });
+        $("body").keyup(function(e){
+            var code = e.keyCode || e.which;
+            if(code === 27){
+                if(activeNode){
+                    activeNode = null;
+                    edgeHighlight(activeNode,false);
+                    tip.showActive();
+                }
+            }
+        });
         
         //Mouse zoom/drag events
         var mousedown = false,mousePos = {
@@ -372,10 +382,15 @@ var graphPlugins = {
 //                    if($("div.d3-tip").text().indexOf(d.name)>-1) tip.hide(d);
 //                },3000);
             }).on("click",function(d){
-                console.log(d);
+                if(activeNode && activeNode.id === d.id){
+                    activeNode = null;
+                    edgeHighlight(d,false);
+                    tip.showActive();
+                }else{
                 activeNode = d;
                 edgeHighlight(d,true);
                 tip.showActive();
+                }
             }).on("dblclick",function(d){
                 var type = $("select#linkparam").val();
                 console.log('dblclick',d.id);
