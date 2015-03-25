@@ -30,11 +30,12 @@ var graphPlugins = {
         var selector = '#grapharea';
         var div = d3.select(selector), $div = $(selector);
         var config = {
-            colors : ["#19FFBB","#0090D9","#E400FF"],textColor: div.attr("data-textcolor") || 'black',
+            textColor: div.attr("data-textcolor") || 'black',
             rmin: parseInt(div.attr("data-rmin")) || 2, rmax : parseInt(div.attr("data-rmax")) || 10,
             w : $div.width(),h : $div.height(),minrating: 0.01,
             linkDistance: 10, linkStrength: 0.1,
-            zoom: 1.0, zoomMin: 0.8, zoomMax: 8.0, zoomStep: 0.2
+            zoom: 1.0, zoomMin: 0.8, zoomMax: 8.0, zoomStep: 0.2,
+            colors: { movie: 'orange',director: 'magenta',star: 'blue',character: '#15ff00', active: 'red', hover: 'cyan' }
         };
         var imgbApiUrl = function(node){
             return "http://www.omdbapi.com/?i="+node.imdbid+"&plot=short&r=json";
@@ -47,17 +48,17 @@ var graphPlugins = {
         var gnodes = svg.selectAll("g.node"), gedges = svg.selectAll("line.edge"),activeNode = null;
         
         var tip = {
-            getHtml: function(d,title){
-                var html = "<h3>"+title+" Node</h3>";
-                if(!d.tooltip || !d.tooltip.length) return html+"<span><strong>"+d.name+"</strong></span>";
+            getHtml: function(d){
+                var html = "<div class='tipcontent' style='color:"+d.color+"'>";
+                if(!d.tooltip || !d.tooltip.length) return html+"<h4>"+d.name+"</h4></div>";
                 for(var i=0;i<d.tooltip.length;i++){
                     var text = d.tooltip[i].url ? "<a href='"+d.tooltip[i].url+"' target='_blank'>"+d[d.tooltip[i].key]+"</a>" : d[d.tooltip[i].key];
-                    html += "<div>";
-                    if(d.tooltip[i].label)
-                        html += "<span class='title'> "+d.tooltip[i].label+":</span> " ; 
-                    html += text+"</div>";
+                    if(d.tooltip[i].key==='name') html += "<h4>"+text+"</h4>";
+                    else if(d.tooltip[i].label)
+                        html += "<span> "+d.tooltip[i].label+":</span> " + text; 
                 }
-                html += "<div class='omdbinfo'><div class='ajaxloader'></span></div>";
+                html += "<div class='omdbinfo'><div class='ajaxloader'></span></div></div>";
+                html += "</div>";
                 return html;
             },
             show: function(d){
@@ -67,6 +68,7 @@ var graphPlugins = {
                 $("div#infohover").hide();
             },
             showActive: function(){
+                filter.setActiveStroke();
                 if(activeNode){
                     $("div#infoactive").html(tip.getHtml(activeNode,"Active")).show();
                     if(activeNode.type==='movie'){
@@ -190,9 +192,16 @@ var graphPlugins = {
                 gnodes.transition().duration(400).style('opacity',function(d){ return d.active ? d.hover || d.active : d.active; });
                 gedges.transition().duration(400).style('opacity',function(d){ return d.active ? d.hover || d.active : d.active; });
             },
+            setActiveStroke: function(){
+                gnodes.style('stroke',function(d){
+                    return activeNode && activeNode.id === d.id ? config.colors.active : '';
+                }).style("stroke-width",function(d){
+                    return activeNode && activeNode.id === d.id ? '3px' : '0px';
+                });
+            },
             layout: function(zoom){
                 config.zoom = arguments.length ? zoom || 1 : config.zoom;
-                gnodes.style('stroke',function(d){ return activeNode && d.id === activeNode.id ? 'red' : '' ;})
+                gnodes.style('stroke',function(d){ return activeNode && d.id === activeNode.id ? config.colors.active : '' ;})
                       .style("stroke-width",function(d){ return activeNode && d.id === activeNode.id ? '3px' : '0x' ;});
                 gnodes.selectAll("circle.bubble").transition().duration(500)
                     .attr("r",function(d){
@@ -285,8 +294,8 @@ var graphPlugins = {
                 if(activeNode){
                     activeNode = null;
                     edgeHighlight(activeNode,false);
-                    tip.showActive();
                 }
+                tip.showActive();
             }
         });
         
@@ -322,17 +331,26 @@ var graphPlugins = {
         });
         
         var edgeHighlight = function(d,highlight){
-            if(highlight)
+            if(highlight){
                 gedges.each(function(de){
                     de.hover = de.source.id === d.id || de.target.id === d.id ? 1 : 0.1;
                     de.source.hover = Math.max(de.source.hover,de.hover);
                     de.target.hover = Math.max(de.target.hover,de.hover);
                 });
-            else gedges.each(function(de){
-                de.hover = 0;
-                de.source.hover = 0;
-                de.target.hover = 0;
-            });
+                gnodes.style('stroke',function(dn){
+                    return activeNode && activeNode.id === dn.id ? config.colors.active : ( dn.id === d.id ? config.colors.hover : '');
+                }).style("stroke-width",function(dn){
+                    return activeNode && activeNode.id === dn.id ? '3px' : ( dn.id === d.id ? '3px' : '');
+                });
+            }
+            else{
+                gedges.each(function(de){
+                    de.hover = 0;
+                    de.source.hover = 0;
+                    de.target.hover = 0;
+                });
+                filter.setActiveStroke();
+            }
             filter.setOpacity();
         };
         
@@ -385,15 +403,13 @@ var graphPlugins = {
                 if(activeNode && activeNode.id === d.id){
                     activeNode = null;
                     edgeHighlight(d,false);
-                    tip.showActive();
                 }else{
-                activeNode = d;
-                edgeHighlight(d,true);
-                tip.showActive();
+                    activeNode = d;
+                    edgeHighlight(d,true);
                 }
+                tip.showActive();
             }).on("dblclick",function(d){
                 var type = $("select#linkparam").val();
-                console.log('dblclick',d.id);
                 filter.enableConnected(d.id,type);
                 filter.layout();
             });
@@ -403,6 +419,7 @@ var graphPlugins = {
                     activeNode = null;
                     edgeHighlight(null,false);
                 }
+                tip.showActive();
             });
             
             gnodes.selectAll('text').remove();
@@ -421,7 +438,6 @@ var graphPlugins = {
             config.zoom += ( factor*config.zoomStep ) / Math.abs(factor);
 //            $(config.slider).slider({"value":config.zoom});
             var f = config.zoom / zprev, x = mx || config.w/2, y = my || config.h/2;
-            console.log(f,x,y);
             gnodes.selectAll('circle').attr("r",function(d){
                 d.r *= f;
                 return d.r*d.zoom;
@@ -472,7 +488,7 @@ var graphPlugins = {
                 d.starNodes = {};
                 d.characterNodes = {};
                 d.rating = d.rating && parseInt(d.rating) ? parseInt(d.rating) : 0 ;
-                d.color = 'orange';
+                d.color = config.colors.movie;
                 d.y = 0; d.x = 0;
                 d.tooltip = [
                     { key: "name",url : d.url || "" },
@@ -483,7 +499,7 @@ var graphPlugins = {
                     d.director.type = 'director';
                     d.director.rating = 0;
                     d.director.films = 0;
-                    d.director.color = 'black';
+                    d.director.color = config.colors.director;
                     d.director.tooltip = [
                         {key: 'name' },
                         {key: "rating", label: "Average Rating"}
@@ -496,7 +512,7 @@ var graphPlugins = {
                 d.stars.forEach(function(s){
                     s.type = 'star';
                     s.rating = 0;
-                    s.color = 'blue';
+                    s.color = config.colors.star;
                     s.films = 0;
                     s.tooltip = [
                         {key: 'name' },
@@ -511,7 +527,7 @@ var graphPlugins = {
                 d.characters.forEach(function(character){
                     character.type = 'character';
                     character.rating = 0;
-                    character.color = 'green';
+                    character.color = config.colors.character;
                     character.films = 0;
                     character.tooltip = [
                         {key: 'name' },

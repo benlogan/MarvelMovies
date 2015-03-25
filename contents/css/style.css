@@ -7,6 +7,10 @@ and open the template in the editor.
     Created on : 21 Jan, 2015, 5:28:57 PM
     Author     : shani
 */
+
+body{
+    overflow-y: scroll;
+}
 div#grapharea{
     box-shadow: 0px 0px 2px #ccc;border : 1px solid #ddd;
 }
