@@ -230,7 +230,8 @@ var graphPlugins = {
 
         var selectMovie = function(fc){
             activeNode = fc;
-            var active = $("select#linkparam").val();
+            var active = $("input[name='link']:checked").val();
+            console.log(active);
             filter.disableAll();
             fc.zoom = 2;
             filter.enableConnected(fc.id,active);
@@ -268,7 +269,7 @@ var graphPlugins = {
                 updateMovie();
             }
         });
-        $("select#linkparam").change(updateMovie);
+        $("input[name='link']").change(updateMovie);
         $("a#clear").click(function(e){
             e.preventDefault();
             filter.enableAll();
@@ -276,7 +277,7 @@ var graphPlugins = {
             tip.showActive();
             config.zoom = 1;
             $("input#movie").val("");
-            $("select#linkparam").val("");
+            $("input#check[name='link']").prop('checked',true);
             filter.layout(1);
         });
         $("body").keyup(function(e){
@@ -400,7 +401,7 @@ var graphPlugins = {
                 }
                 tip.showActive();
             }).on("dblclick",function(d){
-                var type = $("select#linkparam").val();
+                var type = $("input[name='link']").val();
                 filter.enableConnected(d.id,type);
                 filter.layout();
             });
@@ -580,5 +581,10 @@ $(document).ready(function(){
     graphPlugins.forceGraph();
     $("form#graphfilter").submit(function(e){
         e.preventDefault();
+    });
+    $("[title]").qtip({
+        position: {
+            my: "bottom center", at: 'bottom center', target : "mouse"
+        }
     });
 });
