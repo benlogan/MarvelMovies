@@ -1,12 +1,3 @@
-/* * ************************************************************ 
- * 
- * Date: 21 Jan, 2015
- * version: 0.0.1
- * programmer: Shani Mahadeva <satyashani@gmail.com>
- * Description:   
- * Javascript file graphPlugins.js
- * *************************************************************** */
-
 String.prototype.ucwords = function(){
 	return this.replace(/(?:^|\s)\S/g,function(v){return v.toUpperCase();});
 };

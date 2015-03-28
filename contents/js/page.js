@@ -56,9 +56,3 @@ var addSuggester = function(inputSelector,suggester,onclick){
         $("div#suggest").empty();
     });
 };
-
-$(document).ready(function(){
-    $.getJSON("http://www.omdbapi.com/?i=tt1430132&plot=short&r=json",function(data){
-        console.log(data);
-    });
-});
