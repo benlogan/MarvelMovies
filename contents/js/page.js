@@ -1,12 +1,3 @@
-/* * ************************************************************ 
- * 
- * Date: 8 Mar, 2015
- * version: 0.0.1
- * programmer: Shani Mahadeva <satyashani@gmail.com>
- * Description:   
- * Javascript file page.js
- * *************************************************************** */
-
 var addSuggester = function(inputSelector,suggester,onclick){
     $(inputSelector).keyup(function(e){
         var input = $(this);
