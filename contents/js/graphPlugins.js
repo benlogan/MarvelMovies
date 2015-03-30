@@ -36,7 +36,33 @@ var graphPlugins = {
         var svg = div.select('svg');
         svg.attr("width",config.w);
         svg.attr("height",config.h);
-        var gnodes = svg.selectAll("g.node"), gedges = svg.selectAll("line.edge"),activeNode = null;
+        var container = svg.append("g");
+        var gnodes = container.selectAll("g.node"), gedges = container.selectAll("line.edge"),activeNode = null;
+        
+        
+        var zoom = d3.behavior.zoom()
+            .scaleExtent([config.zoomMin, config.zoomMax])
+            .on("zoom", zoomed);
+
+        function zoomed() {
+            config.zoom = d3.event.scale;
+            container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+        }
+        function dragstarted(d) {
+            d3.event.sourceEvent.stopPropagation();
+            d3.select(this).classed("dragging", true);
+            force.start();
+        }
+        function dragged(d) { d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y); }
+        function dragended(d) { d3.select(this).classed("dragging", false);}
+        
+        d3.behavior.drag()
+            .origin(function(d) { return d; })
+            .on("dragstart", dragstarted)
+            .on("drag", dragged)
+            .on("dragend", dragended);
+
+        svg.attr("transform", "translate(0,0)").call(zoom);
         
         var tip = {
             getHtml: function(d){
@@ -192,6 +218,10 @@ var graphPlugins = {
             },
             layout: function(zoom){
                 config.zoom = arguments.length ? zoom || 1 : config.zoom;
+                if(activeNode)
+                    container.attr("transform", "translate("+(-activeNode.x)+",-"+(-activeNode.y)+")scale(" + config.zoom + ")");
+                else
+                    container.attr("transform", "translate(0,0)scale(" + config.zoom + ")");
                 gnodes.style('stroke',function(d){ return activeNode && d.id === activeNode.id ? config.colors.active : '' ;})
                       .style("stroke-width",function(d){ return activeNode && d.id === activeNode.id ? '3px' : '0x' ;});
                 gnodes.selectAll("circle.bubble").transition().duration(500)
@@ -211,11 +241,6 @@ var graphPlugins = {
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
                 .attr("y2", function(d) {  return d.target.y; });
-//                .attr("d",function(d){
-//                    return "M"+d.source.x+" "+d.source.y+
-//                           " C "+d.source.x+" "+(d.source.y+d.target.y)/2+", "+
-//                           d.target.x+" "+(d.source.y+d.target.y)/2+", "+
-//                           d.target.x+" "+d.target.y;});;
         };
         
         var force = d3.layout.force()
@@ -224,14 +249,13 @@ var graphPlugins = {
             }).linkDistance(function(d){
                 return config.linkDistance*config.zoom*config.zoom;
             }).charge(function(d){
-                return -30*(d.zoom+config.minrating)*d.active;
+                return -30*config.zoom*(d.zoom+config.minrating)*d.active;
             }).size([config.w-2*config.rmax,config.h-2*config.rmax])
             .on("tick", tick).on("end", tick);
 
         var selectMovie = function(fc){
             activeNode = fc;
-            var active = $("input[name='link']:checked").val();
-            console.log(active);
+            var active = $("input[name='link']:checked").val() || "";
             filter.disableAll();
             fc.zoom = 2;
             filter.enableConnected(fc.id,active);
@@ -291,37 +315,6 @@ var graphPlugins = {
             }
         });
         
-        //Mouse zoom/drag events
-        var mousedown = false,mousePos = {
-            down: {x: config.w/2,y: config.h/2},curr: {x: config.w/2,y: config.h/2}
-        };
-        $div.mousewheel(function(e,s){
-            e.preventDefault();
-            e.stopPropagation();
-            var off = $(this).offset();
-            if(s > 0) zoom(1,e.pageX-off.left,e.pageY-off.top);
-            else zoom(-1,e.pageX-off.left,e.pageY-off.top);
-        }).mouseup(function(){
-            mousedown=false;
-            $(this).css({"cursor":"auto"});
-        }).mousedown(function(e){
-            mousedown=true;
-            var off = $(this).offset();
-            mousePos.down.x=e.pageX-off.left;
-            mousePos.down.y=e.pageY-off.top;
-            $(this).css({"cursor":"move"});
-        }).mousemove(function(e){
-            var off = $(this).offset();
-            mousePos.curr.x=e.pageX-off.left;
-            mousePos.curr.y=e.pageY-off.top;
-            if(mousedown){
-                var x = mousePos.curr.x-mousePos.down.x, y = mousePos.curr.y-mousePos.down.y;
-                drag(x,y);
-                mousePos.down.x = mousePos.curr.x;
-                mousePos.down.y = mousePos.curr.y;
-            }
-        });
-        
         var edgeHighlight = function(d,highlight){
             if(highlight){
                 gedges.each(function(de){
@@ -354,11 +347,6 @@ var graphPlugins = {
                 .style("stroke-width", 1).attr("fill",function(d){
                     return d.target.color;
                 }).attr("stroke",function(d){return d.target.color || 'grey';})
-//                .attr("d",function(d){
-//                    return "M"+d.source.x+" "+d.source.y+
-//                           " C "+(0.9*d.source.x+0.1*d.target.x)+" "+(0.9*d.source.y+0.1*d.target.y)+", "+
-//                           (0.9*d.target.x+0.1*d.source.x)+" "+(0.9*d.target.y+0.1*d.source.y)+", "+
-//                           d.target.x+" "+d.target.y;});
                 .attr("x1", function(d) { return d.source.x; })
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
@@ -417,57 +405,6 @@ var graphPlugins = {
             gnodes.selectAll('text').remove();
             gnodes.call(force.drag);
             force.alpha(0.1).start();
-        };
-        
-        var zoom = function(factor,mx,my){
-//            console.log(config.zoom, config.zoomMax,config.zoomMin,factor,force.alpha());
-            if( force.alpha()>0 || !factor ||
-                    (config.zoom >= config.zoomMax && factor > 0 ) ||
-                    (config.zoom <= config.zoomMin && factor < 0 )
-                ) return false;
-        
-            var zprev = config.zoom;
-            config.zoom += ( factor*config.zoomStep ) / Math.abs(factor);
-//            $(config.slider).slider({"value":config.zoom});
-            var f = config.zoom / zprev, x = mx || config.w/2, y = my || config.h/2;
-            gnodes.selectAll('circle').attr("r",function(d){
-                d.r *= f;
-                return d.r*d.zoom;
-            });
-            gnodes.attr("transform",function(d){ 
-                d.x = x+f*(d.x-x);
-                d.y = y+f*(d.y-y); 
-                return "translate("+d.x+","+d.y+")"; 
-            });
-            gedges.attr("x1", function(d) { 
-                    return d.source.x;
-                }).attr("y1", function(d) {
-                    return d.source.y;
-                }).attr("x2", function(d) {
-                    return d.target.x;
-                }).attr("y2", function(d) { 
-                    return d.target.y;
-                });
-            return true;
-        };
-        
-        var drag = function(x,y){
-            if(force.alpha()>0) return;
-            gnodes.attr("transform",function(d){ 
-                d.x += x;
-                d.y += y; 
-                return "translate("+d.x+","+d.y+")"; 
-            });
-            gedges.attr("x1", function(d) { 
-                return d.source.x;
-            }).attr("y1", function(d) {
-                return d.source.y;
-            }).attr("x2", function(d) {
-                return d.target.x;
-            }).attr("y2", function(d) { 
-                return d.target.y;
-            });
-            return true;
         };
         
         //Load Data
