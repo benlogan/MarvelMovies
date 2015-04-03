@@ -314,6 +314,10 @@ var graphPlugins = {
                 tip.showActive();
             }
         });
+        $("input#showlabels").click(function(){
+            console.log('state: ',$(this).is(":checked"));
+            gnodes.selectAll("text").style("opacity",($(this).is(":checked") ? 1 : 0));
+        });
         
         var edgeHighlight = function(d,highlight){
             if(highlight){
@@ -360,6 +364,9 @@ var graphPlugins = {
             gnodes.selectAll('circle').remove();
             
             //Render Circles
+            gnodes.append("text").text(function(d){return d.name;})
+                    .style("opacity",0).style("font-size",'10px')
+                    .style("pointer-events","none");
             var circle = gnodes.append('circle').attr("class","bubble");
             circle.attr("fill",function(d){ return d.color; })
                 .attr('r',0).attr("stroke-width", 2)
@@ -402,7 +409,6 @@ var graphPlugins = {
                 tip.showActive();
             });
             
-            gnodes.selectAll('text').remove();
             gnodes.call(force.drag);
             force.alpha(0.1).start();
         };
