@@ -1,6 +1,8 @@
 # MarvelMovies
 A visualisation showing the connections between all Marvel movies.
 
+Playable Demo;
+http://benlogan1981.github.io/MarvelMovies/
 
 ## Data Format
 
