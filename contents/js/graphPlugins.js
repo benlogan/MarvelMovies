@@ -368,6 +368,8 @@ var graphPlugins = {
             gnodes.append("text").text(function(d){return d.name;})
                     .style("opacity",0).style("font-size",'10px')
                     .style("stroke-width","0.3")
+                    .attr("x",function(){ return -this.getBBox().width/2; })
+                    .attr("y",function(d){ return -rScale(d.rating); })
                     .style("pointer-events","none");
             var circle = gnodes.append('circle').attr("class","bubble");
             circle.attr("fill",function(d){ return d.color; })
