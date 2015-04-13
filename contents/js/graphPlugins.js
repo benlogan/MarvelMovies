@@ -99,11 +99,10 @@ var graphPlugins = {
                             complete: function(){
                                 $("div#infoactive").find(".omdbinfo .ajaxloader").fadeOut("fast");
                             },
-                            success: function(data){
-                                if(data.Poster && data.Plot){
-                                    var html = "<a href='"+activeNode.url+"' target='_blank'><img src = '"+data.Poster+"' width='100%' height='200px' style='min-height:200px' /></a><p>"+data.Plot+"</p>";
-                                    $("div#infoactive").find(".omdbinfo").html(html);
-                                }
+                            success: function(res){
+                                var data = JSON.parse(res);
+                                var html = "<a href='"+activeNode.url+"' target='_blank'><img src = '"+data.Poster+"' width='100%' height='200px' style='min-height:200px' /></a><p>"+data.Plot+"</p>";
+                                $("div#infoactive").find(".omdbinfo").html(html);
                             }
                         });
                     }
@@ -367,7 +366,6 @@ var graphPlugins = {
             //Render Circles
             gnodes.append("text").text(function(d){return d.name;})
                     .style("opacity",0).style("font-size",'10px')
-                    .style("stroke-width","0.3")
                     .style("pointer-events","none");
             var circle = gnodes.append('circle').attr("class","bubble");
             circle.attr("fill",function(d){ return d.color; })
