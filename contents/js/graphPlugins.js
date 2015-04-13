@@ -380,6 +380,7 @@ var graphPlugins = {
                 });
 //            circle.call(tip);
             circle.on("mouseover",function(d){
+                if(activeNode && d.id===activeNode.id) return;
                 tip.hide();
                 tip.show(d);
                 edgeHighlight(d,true);
