@@ -255,6 +255,7 @@ var graphPlugins = {
             .on("tick", tick).on("end", tick);
 
         var selectMovie = function(fc){
+            $("#connectionselect").fadeIn('fast');
             activeNode = fc;
             var active = $("input[name='link']:checked").val() || "";
             filter.disableAll();
@@ -302,6 +303,7 @@ var graphPlugins = {
             tip.showActive();
             config.zoom = 1;
             $("input#movie").val("");
+            $("#connectionselect").fadeOut('fast');
             $("input#check[name='link']").prop('checked',true);
             filter.layout(1);
         });
