@@ -101,9 +101,9 @@ var graphPlugins = {
                             },
                             success: function(data){
                                 if(data.Poster && data.Plot){
-                                var html = "<a href='"+activeNode.url+"' target='_blank'><img src = '"+data.Poster+"' width='100%' height='200px' style='min-height:200px' /></a><p>"+data.Plot+"</p>";
-                                $("div#infoactive").find(".omdbinfo").html(html);
-                            }
+                                    var html = "<a href='"+activeNode.url+"' target='_blank'><img src = '"+data.Poster+"' width='100%' height='200px' style='min-height:200px' /></a><p>"+data.Plot+"</p>";
+                                    $("div#infoactive").find(".omdbinfo").html(html);
+                                }
                             }
                         });
                     }
