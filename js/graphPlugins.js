@@ -99,10 +99,11 @@ var graphPlugins = {
                             complete: function(){
                                 $("div#infoactive").find(".omdbinfo .ajaxloader").fadeOut("fast");
                             },
-                            success: function(res){
-                                var data = JSON.parse(res);
+                            success: function(data){
+                                if(data.Poster && data.Plot){
                                 var html = "<a href='"+activeNode.url+"' target='_blank'><img src = '"+data.Poster+"' width='100%' height='200px' style='min-height:200px' /></a><p>"+data.Plot+"</p>";
                                 $("div#infoactive").find(".omdbinfo").html(html);
+                            }
                             }
                         });
                     }
@@ -254,6 +255,7 @@ var graphPlugins = {
             .on("tick", tick).on("end", tick);
 
         var selectMovie = function(fc){
+            $("#connectionselect").fadeIn('fast');
             activeNode = fc;
             var active = $("input[name='link']:checked").val() || "";
             filter.disableAll();
@@ -301,6 +303,7 @@ var graphPlugins = {
             tip.showActive();
             config.zoom = 1;
             $("input#movie").val("");
+            $("#connectionselect").fadeOut('fast');
             $("input#check[name='link']").prop('checked',true);
             filter.layout(1);
         });
@@ -313,6 +316,10 @@ var graphPlugins = {
                 }
                 tip.showActive();
             }
+        });
+        $("input#showlabels").click(function(){
+            console.log('state: ',$(this).is(":checked"));
+            gnodes.selectAll("text").style("opacity",($(this).is(":checked") ? 1 : 0));
         });
         
         var edgeHighlight = function(d,highlight){
@@ -360,6 +367,12 @@ var graphPlugins = {
             gnodes.selectAll('circle').remove();
             
             //Render Circles
+            gnodes.append("text").text(function(d){return d.name;})
+                    .style("opacity",0).style("font-size",'10px')
+                    .style("stroke-width","0.3")
+                    .attr("x",function(){ return -this.getBBox().width/2; })
+                    .attr("y",function(d){ return -rScale(d.rating); })
+                    .style("pointer-events","none");
             var circle = gnodes.append('circle').attr("class","bubble");
             circle.attr("fill",function(d){ return d.color; })
                 .attr('r',0).attr("stroke-width", 2)
@@ -369,6 +382,7 @@ var graphPlugins = {
                 });
 //            circle.call(tip);
             circle.on("mouseover",function(d){
+                if(activeNode && d.id===activeNode.id) return;
                 tip.hide();
                 tip.show(d);
                 edgeHighlight(d,true);
@@ -402,7 +416,6 @@ var graphPlugins = {
                 tip.showActive();
             });
             
-            gnodes.selectAll('text').remove();
             gnodes.call(force.drag);
             force.alpha(0.1).start();
         };
