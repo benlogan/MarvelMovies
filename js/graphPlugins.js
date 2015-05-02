@@ -102,9 +102,9 @@ var graphPlugins = {
                             },
                             success: function(data){
                                 if(data.Poster && data.Plot){
-                                var html = "<a href='"+activeNode.url+"' target='_blank'><img src = '"+data.Poster+"' width='100%' height='200px' style='min-height:200px' /></a><p>"+data.Plot+"</p>";
-                                $("div#infoactive").find(".omdbinfo").html(html);
-                            }
+                                    var html = "<a href='"+activeNode.url+"' target='_blank'><img src = '"+data.Poster+"' width='100%' height='200px' style='min-height:200px' /></a><p>"+data.Plot+"</p>";
+                                    $("div#infoactive").find(".omdbinfo").html(html);
+                                }
                             }
                         });
                     }
@@ -220,10 +220,6 @@ var graphPlugins = {
             },
             layout: function(zoom){
                 config.zoom = arguments.length ? zoom || 1 : config.zoom;
-                if(activeNode)
-                    container.attr("transform", "translate("+(-activeNode.x)+",-"+(-activeNode.y)+")scale(" + config.zoom + ")");
-                else
-                    container.attr("transform", "translate(0,0)scale(" + config.zoom + ")");
                 gnodes.style('stroke',function(d){ return activeNode && d.id === activeNode.id ? config.colors.active : '' ;})
                       .style("stroke-width",function(d){ return activeNode && d.id === activeNode.id ? '3px' : '0x' ;});
                 gnodes.selectAll("circle.bubble").transition().duration(500)
