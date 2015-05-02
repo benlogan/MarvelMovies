@@ -26,7 +26,8 @@ var graphPlugins = {
             w : $div.width(),h : $div.height(),minrating: 0.01,
             linkDistance: 10, linkStrength: 0.1,
             zoom: 1.0, zoomMin: 0.8, zoomMax: 8.0, zoomStep: 0.2,
-            colors: { movie: 'orange',director: 'magenta',star: 'blue',character: '#15ff00', active: 'red', hover: 'cyan' }
+            colors: { movie: 'orange',director: 'magenta',star: 'blue',character: '#15ff00', active: 'red', hover: 'cyan' },
+            showlabel: false
         };
         var imgbApiUrl = function(node){
             return "http://www.omdbapi.com/?i="+node.imdbid+"&plot=short&r=json";
@@ -219,10 +220,6 @@ var graphPlugins = {
             },
             layout: function(zoom){
                 config.zoom = arguments.length ? zoom || 1 : config.zoom;
-                if(activeNode)
-                    container.attr("transform", "translate("+(-activeNode.x)+",-"+(-activeNode.y)+")scale(" + config.zoom + ")");
-                else
-                    container.attr("transform", "translate(0,0)scale(" + config.zoom + ")");
                 gnodes.style('stroke',function(d){ return activeNode && d.id === activeNode.id ? config.colors.active : '' ;})
                       .style("stroke-width",function(d){ return activeNode && d.id === activeNode.id ? '3px' : '0x' ;});
                 gnodes.selectAll("circle.bubble").transition().duration(500)
@@ -248,7 +245,7 @@ var graphPlugins = {
             .linkStrength(function(d){
                 return config.linkStrength/d.zoom/config.zoom;
             }).linkDistance(function(d){
-                return config.linkDistance*config.zoom*config.zoom;
+                return config.linkDistance*config.zoom*config.zoom*(config.showlabel ? 3 : 1);
             }).charge(function(d){
                 return -30*config.zoom*(d.zoom+config.minrating)*d.active;
             }).size([config.w-2*config.rmax,config.h-2*config.rmax])
@@ -318,8 +315,9 @@ var graphPlugins = {
             }
         });
         $("input#showlabels").click(function(){
-            console.log('state: ',$(this).is(":checked"));
-            gnodes.selectAll("text").style("opacity",($(this).is(":checked") ? 1 : 0));
+            config.showlabel = !config.showlabel;
+            gnodes.selectAll("text").style("opacity",config.showlabel ? 1 : 0);
+            force.alpha(0.1).start();
         });
         
         var edgeHighlight = function(d,highlight){
@@ -366,13 +364,6 @@ var graphPlugins = {
             }).attr("transform",function(d){ return "translate("+d.x+","+d.y+")"; });
             gnodes.selectAll('circle').remove();
             
-            //Render Circles
-            gnodes.append("text").text(function(d){return d.name;})
-                    .style("opacity",0).style("font-size",'10px')
-                    .style("stroke-width","0.3")
-                    .attr("x",function(){ return -this.getBBox().width/2; })
-                    .attr("y",function(d){ return -rScale(d.rating); })
-                    .style("pointer-events","none");
             var circle = gnodes.append('circle').attr("class","bubble");
             circle.attr("fill",function(d){ return d.color; })
                 .attr('r',0).attr("stroke-width", 2)
@@ -407,6 +398,14 @@ var graphPlugins = {
                 filter.enableConnected(d.id,type);
                 filter.layout();
             });
+            
+            //Render Circles
+            gnodes.append("text").text(function(d){return d.name.length > 12 ? (d.name.substr(0,10)+"..") : d.name;})
+                    .style("opacity",0).style("font-size",'10px')
+                    .style("stroke-width","0.3")
+                    .attr("x",function(){ return -this.getBBox().width/2; })
+                    .attr("y",function(d){ return -rScale(d.rating); })
+                    .style("pointer-events","none");
             
             $('body').click(function(e){
                 if(e.target.tagName!=='circle'){
