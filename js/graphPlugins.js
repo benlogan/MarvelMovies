@@ -63,7 +63,7 @@ var graphPlugins = {
             .on("drag", dragged)
             .on("dragend", dragended);
 
-        svg.attr("transform", "translate(0,0)").call(zoom);
+        svg.attr("transform", "translate(0,0)").call(zoom).on("dblclick.zoom", null);
         
         var tip = {
             getHtml: function(d){
@@ -385,17 +385,16 @@ var graphPlugins = {
 //                    if($("div.d3-tip").text().indexOf(d.name)>-1) tip.hide(d);
 //                },3000);
             }).on("click",function(d){
-                if(activeNode && activeNode.id === d.id){
-                    activeNode = null;
-                    edgeHighlight(d,false);
-                }else{
-                    activeNode = d;
-                    edgeHighlight(d,true);
-                }
+                if(activeNode && activeNode.id !== d.id)
+                    edgeHighlight(activeNode,false);
+                activeNode = d;
+                edgeHighlight(d,true);
                 tip.hide();
                 tip.showActive();
             }).on("dblclick",function(d){
-                var type = $("input[name='link']").val();
+                var type = $("input[name='link']:checked").val();
+                activeNode = d;
+                edgeHighlight(d,true);
                 filter.enableConnected(d.id,type);
                 filter.layout();
             });
