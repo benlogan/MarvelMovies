@@ -29,8 +29,11 @@ var graphPlugins = {
             colors: { movie: 'orange',director: 'magenta',star: 'blue',character: '#15ff00', active: 'red', hover: 'cyan' },
             showlabel: false
         };
-        var imgbApiUrl = function(node){
+        var imdbApiUrl = function(node){
             return "http://www.omdbapi.com/?i="+node.imdbid+"&plot=short&r=json";
+        };
+        var movieImgUrl = function(node){
+            return "./images/movies/"+node.imdbid+".JPG";
         };
         var rScale = d3.scale.sqrt().range([config.rmin,config.rmax]);
         var url = div.attr("data-url");
@@ -63,7 +66,7 @@ var graphPlugins = {
             .on("drag", dragged)
             .on("dragend", dragended);
 
-        svg.attr("transform", "translate(0,0)").call(zoom);
+        svg.attr("transform", "translate(0,0)").call(zoom).on("dblclick.zoom", null);
         
         var tip = {
             getHtml: function(d){
@@ -92,7 +95,7 @@ var graphPlugins = {
                     if(activeNode.type==='movie'){
                         $("div#infoactive").find(".omdbinfo .ajaxloader").fadeIn("fast");
                         $.ajax({
-                            url : imgbApiUrl(activeNode),
+                            url : imdbApiUrl(activeNode),
                             jsonp : true,
                             before: function(){
                                 $("div#infoactive").find(".omdbinfo .ajaxloader").fadeIn("fast");
@@ -102,7 +105,7 @@ var graphPlugins = {
                             },
                             success: function(data){
                                 if(data.Poster && data.Plot){
-                                    var html = "<a href='"+activeNode.url+"' target='_blank'><img src = '"+data.Poster+"' width='100%' height='200px' style='min-height:200px' /></a><p>"+data.Plot+"</p>";
+                                    var html = "<a href='"+activeNode.url+"' target='_blank'><img src = '"+movieImgUrl(activeNode)+"' width='100%' height='200px' style='min-height:200px' /></a><p>"+data.Plot+"</p>";
                                     $("div#infoactive").find(".omdbinfo").html(html);
                                 }
                             }
@@ -220,6 +223,10 @@ var graphPlugins = {
             },
             layout: function(zoom){
                 config.zoom = arguments.length ? zoom || 1 : config.zoom;
+                if(activeNode)
+                    container.attr("transform", "translate("+(-activeNode.x*config.zoom)+","+(-activeNode.y*config.zoom)+"scale(" + config.zoom + ")");
+                else
+                    container.attr("transform", "translate(0,0)scale(" + config.zoom + ")");
                 gnodes.style('stroke',function(d){ return activeNode && d.id === activeNode.id ? config.colors.active : '' ;})
                       .style("stroke-width",function(d){ return activeNode && d.id === activeNode.id ? '3px' : '0x' ;});
                 gnodes.selectAll("circle.bubble").transition().duration(500)
@@ -385,16 +392,16 @@ var graphPlugins = {
 //                    if($("div.d3-tip").text().indexOf(d.name)>-1) tip.hide(d);
 //                },3000);
             }).on("click",function(d){
-                if(activeNode && activeNode.id === d.id){
-                    activeNode = null;
-                    edgeHighlight(d,false);
-                }else{
-                    activeNode = d;
-                    edgeHighlight(d,true);
-                }
+                if(activeNode && activeNode.id !== d.id)
+                    edgeHighlight(activeNode,false);
+                activeNode = d;
+                edgeHighlight(d,true);
+                tip.hide();
                 tip.showActive();
             }).on("dblclick",function(d){
-                var type = $("input[name='link']").val();
+                var type = $("input[name='link']:checked").val();
+                activeNode = d;
+                edgeHighlight(d,true);
                 filter.enableConnected(d.id,type);
                 filter.layout();
             });
