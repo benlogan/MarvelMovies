@@ -29,7 +29,7 @@ var graphPlugins = {
             colors: { movie: 'orange',director: 'magenta',star: 'blue',character: '#15ff00', active: 'red', hover: 'cyan' },
             showlabel: false
         };
-        var imgbApiUrl = function(node){
+        var imdbApiUrl = function(node){
             return "http://www.omdbapi.com/?i="+node.imdbid+"&plot=short&r=json";
         };
         var rScale = d3.scale.sqrt().range([config.rmin,config.rmax]);
@@ -92,7 +92,7 @@ var graphPlugins = {
                     if(activeNode.type==='movie'){
                         $("div#infoactive").find(".omdbinfo .ajaxloader").fadeIn("fast");
                         $.ajax({
-                            url : imgbApiUrl(activeNode),
+                            url : imdbApiUrl(activeNode),
                             jsonp : true,
                             before: function(){
                                 $("div#infoactive").find(".omdbinfo .ajaxloader").fadeIn("fast");
@@ -392,6 +392,7 @@ var graphPlugins = {
                     activeNode = d;
                     edgeHighlight(d,true);
                 }
+                tip.hide();
                 tip.showActive();
             }).on("dblclick",function(d){
                 var type = $("input[name='link']").val();
