@@ -32,6 +32,9 @@ var graphPlugins = {
         var imdbApiUrl = function(node){
             return "http://www.omdbapi.com/?i="+node.imdbid+"&plot=short&r=json";
         };
+        var movieImgUrl = function(node){
+            return "./images/movies/"+node.imdbid+".JPG";
+        };
         var rScale = d3.scale.sqrt().range([config.rmin,config.rmax]);
         var url = div.attr("data-url");
         var svg = div.select('svg');
@@ -102,7 +105,7 @@ var graphPlugins = {
                             },
                             success: function(data){
                                 if(data.Poster && data.Plot){
-                                    var html = "<a href='"+activeNode.url+"' target='_blank'><img src = '"+data.Poster+"' width='100%' height='200px' style='min-height:200px' /></a><p>"+data.Plot+"</p>";
+                                    var html = "<a href='"+activeNode.url+"' target='_blank'><img src = '"+movieImgUrl(activeNode)+"' width='100%' height='200px' style='min-height:200px' /></a><p>"+data.Plot+"</p>";
                                     $("div#infoactive").find(".omdbinfo").html(html);
                                 }
                             }
