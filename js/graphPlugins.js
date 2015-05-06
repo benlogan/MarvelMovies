@@ -1,48 +1,47 @@
-String.prototype.ucwords = function(){
-	return this.replace(/(?:^|\s)\S/g,function(v){return v.toUpperCase();});
+String.prototype.ucwords = function () {
+	return this.replace(/(?:^|\s)\S/g, function (v) { return v.toUpperCase(); });
 };
-String.prototype.ucfirst = function(){
-	return this.replace(/(^[a-z])/,function(v){return v.toUpperCase();});
+String.prototype.ucfirst = function () {
+	return this.replace(/(^[a-z])/, function (v) { return v.toUpperCase(); });
 };
-String.prototype.lcfirst = function(){
-	return this.replace(/(^[A-Z])/,function(v){return v.toLowerCase();});
+String.prototype.lcfirst = function () {
+	return this.replace(/(^[A-Z])/, function (v) { return v.toLowerCase(); });
 };
-String.prototype.camelCaseToWords = function(){
+String.prototype.camelCaseToWords = function () {
 	return this.split(/(?=[A-Z])/).join(" ");
 };
-String.prototype.Us2Space = function(){
+String.prototype.Us2Space = function () {
 	return this.replace(/_/g," ");
 };
-String.prototype.short = function(len){
-    return (this.length> (len || 30) ? this.substr(0,(len || 30))+".." : this).toString();
+String.prototype.short = function (len) {
+    return (this.length > (len || 30) ? this.substr(0, (len || 30)) + ".." : this).toString();
 };
 var graphPlugins = {
-    forceGraph : function(){
+    forceGraph : function () {
         var selector = '#grapharea';
         var div = d3.select(selector), $div = $(selector);
         var config = {
             textColor: div.attr("data-textcolor") || 'black',
             rmin: parseInt(div.attr("data-rmin")) || 2, rmax : parseInt(div.attr("data-rmax")) || 10,
-            w : $div.width(),h : $div.height(),minrating: 0.01,
+            w : $div.width(), h : $div.height(), minrating: 0.01,
             linkDistance: 10, linkStrength: 0.1,
             zoom: 1.0, zoomMin: 0.8, zoomMax: 8.0, zoomStep: 0.2,
-            colors: { movie: 'orange',director: 'magenta',star: 'blue',character: '#15ff00', active: 'red', hover: 'cyan' },
+            colors: { movie: '#1D9880', star: '#D5F271', director: '#FC8236', character: '#A01852', active: 'red', hover: 'cyan' },
             showlabel: false
         };
-        var imdbApiUrl = function(node){
-            return "http://www.omdbapi.com/?i="+node.imdbid+"&plot=short&r=json";
+        var imdbApiUrl = function (node) {
+            return "http://www.omdbapi.com/?i=" + node.imdbid + "&plot=short&r=json";
         };
-        var movieImgUrl = function(node){
-            return "./images/movies/"+node.imdbid+".JPG";
+        var movieImgUrl = function (node) {
+            return "./images/movies/" + node.imdbid + ".JPG";
         };
-        var rScale = d3.scale.sqrt().range([config.rmin,config.rmax]);
+        var rScale = d3.scale.sqrt().range([config.rmin, config.rmax]);
         var url = div.attr("data-url");
         var svg = div.select('svg');
-        svg.attr("width",config.w);
-        svg.attr("height",config.h);
+        svg.attr("width", config.w);
+        svg.attr("height", config.h);
         var container = svg.append("g");
-        var gnodes = container.selectAll("g.node"), gedges = container.selectAll("line.edge"),activeNode = null;
-        
+        var gnodes = container.selectAll("g.node"), gedges = container.selectAll("line.edge"), activeNode = null;
         
         var zoom = d3.behavior.zoom()
             .scaleExtent([config.zoomMin, config.zoomMax])
@@ -58,7 +57,7 @@ var graphPlugins = {
             force.start();
         }
         function dragged(d) { d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y); }
-        function dragended(d) { d3.select(this).classed("dragging", false);}
+        function dragended(d) { d3.select(this).classed("dragging", false); }
         
         d3.behavior.drag()
             .origin(function(d) { return d; })
@@ -69,26 +68,26 @@ var graphPlugins = {
         svg.attr("transform", "translate(0,0)").call(zoom).on("dblclick.zoom", null);
         
         var tip = {
-            getHtml: function(d){
-                var html = "<div class='tipcontent' style='color:"+d.color+"'>";
-                if(!d.tooltip || !d.tooltip.length) return html+"<h4>"+d.name+"</h4></div>";
-                for(var i=0;i<d.tooltip.length;i++){
-                    var text = d.tooltip[i].url ? "<a href='"+d.tooltip[i].url+"' target='_blank'>"+d[d.tooltip[i].key]+"</a>" : d[d.tooltip[i].key];
-                    if(d.tooltip[i].key==='name') html += "<h4>"+text+"</h4>";
+            getHtml: function (d) {
+                var html = "<div class='tipcontent' style='color:" + d.color + "'>";
+                if(!d.tooltip || !d.tooltip.length) return html + "<h4>" + d.name + "</h4></div>";
+                for (var i=0; i < d.tooltip.length; i++) {
+                    var text = d.tooltip[i].url ? "<a href='" + d.tooltip[i].url + "' target='_blank'>" + d[d.tooltip[i].key] + "</a>" : d[d.tooltip[i].key];
+                    if(d.tooltip[i].key==='name') html += "<h4>" + text + "</h4>";
                     else if(d.tooltip[i].label)
-                        html += "<span> "+d.tooltip[i].label+":</span> " + text; 
+                        html += "<span> " + d.tooltip[i].label + ":</span> " + text; 
                 }
                 html += "<div class='omdbinfo'><div class='ajaxloader'></span></div></div>";
                 html += "</div>";
                 return html;
             },
-            show: function(d){
+            show: function (d) {
                 $("div#infohover").html(tip.getHtml(d,"Hovered")).show();
             },
-            hide: function(){
+            hide: function () {
                 $("div#infohover").hide();
             },
-            showActive: function(){
+            showActive: function () {
                 filter.setActiveStroke();
                 if(activeNode){
                     $("div#infoactive").html(tip.getHtml(activeNode,"Active")).show();
@@ -288,7 +287,6 @@ var graphPlugins = {
             if($("input#movie").val())
                 selectMovie(nodes.get($("input#movie").val(),'movie'));
         };
-        
         
         //Page Events
         $("input#movie").keyup(function(e){

@@ -1,19 +1,9 @@
-/* * ************************************************************ 
- * 
- * Date: 9 Mar, 2015
- * version: 0.0.1
- * programmer: Shani Mahadeva <satyashani@gmail.com>
- * Description:   
- * Javascript file characters.js
- * *************************************************************** */
-
 var movies = require("../contents/data/movieslist_2.json");
 var pg = require("webpage");
 var page = pg.create();
 var jq = "../contents/js/jquery-1.10.1.min.js";
 var fs = require("fs");
 var current = 0;
-
 
 page.onConsoleMessage = function(msg) {
     console.log('PAGE MESSAGE:',msg);
