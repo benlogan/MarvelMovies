@@ -223,7 +223,7 @@ var graphPlugins = {
             layout: function(zoom){
                 config.zoom = arguments.length ? zoom || 1 : config.zoom;
                 if(activeNode)
-                    container.attr("transform", "translate("+(-activeNode.x*config.zoom)+","+(-activeNode.y*config.zoom)+"scale(" + config.zoom + ")");
+                    container.attr("transform", "translate("+(-activeNode.x*config.zoom)+","+(-activeNode.y*config.zoom)+")scale(" + config.zoom + ")");
                 else
                     container.attr("transform", "translate(0,0)scale(" + config.zoom + ")");
                 gnodes.style('stroke',function(d){ return activeNode && d.id === activeNode.id ? config.colors.active : '' ;})
