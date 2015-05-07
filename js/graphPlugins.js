@@ -70,10 +70,10 @@ var graphPlugins = {
         var tip = {
             getHtml: function (d) {
                 var html = "<div class='tipcontent' style='color:" + d.color + "'>";
-                if(!d.tooltip || !d.tooltip.length) return html + "<h4>" + d.name + "</h4></div>";
+                if(!d.tooltip || !d.tooltip.length) return html + "<h4>" + d.name + (d.year ? ", "+d.year :"") + "</h4></div>";
                 for (var i=0; i < d.tooltip.length; i++) {
                     var text = d.tooltip[i].url ? "<a href='" + d.tooltip[i].url + "' target='_blank'>" + d[d.tooltip[i].key] + "</a>" : d[d.tooltip[i].key];
-                    if(d.tooltip[i].key==='name') html += "<h4>" + text + "</h4>";
+                    if(d.tooltip[i].key==='name' || d.tooltip[i].key==='displayname') html += "<h4>" + text + "</h4>";
                     else if(d.tooltip[i].label)
                         html += "<span> " + d.tooltip[i].label + ":</span> " + text; 
                 }
@@ -119,7 +119,7 @@ var graphPlugins = {
             keys: [],
             list: [],
             makeKey : function(d){
-                return d.type+"_"+d.name.toLowerCase().replace(/ /g,"_");
+                return d.type+"_"+d.name.toLowerCase().replace(/ /g,"_")+(d.year ? "_"+d.year : "");
             },
             exists: function(data){
                 return this.keys.indexOf(this.makeKey(data)) > -1;
@@ -134,8 +134,8 @@ var graphPlugins = {
                     this.list.push(data);
                 }else data.id = this.makeKey(data);
             },
-            get: function(name,type){
-                var key = arguments.length === 2 ? this.makeKey({name: name,type: type}) : name;
+            get: function(name,type,year){
+                var key = arguments.length >= 2 ? this.makeKey({name: name,type: type, year : (year || null)}) : name;
                 for(var i=0;i<this.list.length;i++){
                     if(key === this.list[i].id) return this.list[i];
                 }
@@ -284,8 +284,11 @@ var graphPlugins = {
         };
         
         var updateMovie = function(){
-            if($("input#movie").val())
-                selectMovie(nodes.get($("input#movie").val(),'movie'));
+            if($("input#movie").val()){
+                var name = $("input#movie").val(),m = name.match(/, (\d+)/), year = m ? m[1] : '';
+                if(m) name = name.replace(/, \d+/,'');
+                selectMovie(nodes.get(name,'movie',year));
+            }
         };
         
         //Page Events
@@ -293,7 +296,9 @@ var graphPlugins = {
             e.preventDefault();
             e.stopPropagation();
             var code = e.keyCode || e.which;
-            if(code === 13 && nodes.get($(this).val(),'movie')){
+            var name = $(this).val(),m = name.match(/, (\d+)/), year = m ? m[1] : '';
+            if(m) name = name.replace(/, \d+/,'');
+            if(code === 13 && nodes.get(name,'movie',year)){
                 updateMovie();
             }
         });
@@ -433,11 +438,12 @@ var graphPlugins = {
                 d.type = 'movie';
                 d.starNodes = {};
                 d.characterNodes = {};
+                d.displayname = d.name+(d.year ? ', '+d.year : "");
                 d.rating = d.rating && parseInt(d.rating) ? parseInt(d.rating) : 0 ;
                 d.color = config.colors.movie;
                 d.y = 0; d.x = 0;
                 d.tooltip = [
-                    { key: "name",url : d.url || "" },
+                    { key: "displayname",url : d.url || "" },
                     {key: "rating", label: "Rating"}
                 ];
                 nodes.add(d);
@@ -524,7 +530,7 @@ var graphPlugins = {
         addSuggester("input#movie",function(term){
             var res = [];
             nodes.getAll().forEach(function(n){
-                if(n.type==='movie' && n.name.toLowerCase().indexOf(term.toLowerCase())>-1) res.push(n.name);
+                if(n.type==='movie' && n.name.toLowerCase().indexOf(term.toLowerCase())>-1) res.push(n.name+(n.year ? ", "+n.year : ""));
             });
             return res;
         },updateMovie);
