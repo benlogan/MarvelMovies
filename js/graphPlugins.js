@@ -11,7 +11,7 @@ String.prototype.camelCaseToWords = function () {
 	return this.split(/(?=[A-Z])/).join(" ");
 };
 String.prototype.Us2Space = function () {
-	return this.replace(/_/g," ");
+	return this.replace(/_/g, " ");
 };
 String.prototype.short = function (len) {
     return (this.length > (len || 30) ? this.substr(0, (len || 30)) + ".." : this).toString();
@@ -70,7 +70,7 @@ var graphPlugins = {
         var tip = {
             getHtml: function (d) {
                 var html = "<div class='tipcontent' style='color:" + d.color + "'>";
-                if(!d.tooltip || !d.tooltip.length) return html + "<h4>" + d.name + (d.year ? ", "+d.year :"") + "</h4></div>";
+                if(!d.tooltip || !d.tooltip.length) return html + "<h4>" + d.name + (d.year ? ", " + d.year : "") + "</h4></div>";
                 for (var i=0; i < d.tooltip.length; i++) {
                     var text = d.tooltip[i].url ? "<a href='" + d.tooltip[i].url + "' target='_blank'>" + d[d.tooltip[i].key] + "</a>" : d[d.tooltip[i].key];
                     if(d.tooltip[i].key==='name' || d.tooltip[i].key==='displayname') html += "<h4>" + text + "</h4>";
@@ -434,12 +434,12 @@ var graphPlugins = {
         d3.json(url,function(err,data){
             $.fancybox.hideLoading();
             if(err) return $.fancybox("<p>Failed to load data.</p>");
-            data.forEach(function(d,i){
+            data.forEach(function(d,i) {
                 d.type = 'movie';
                 d.starNodes = {};
                 d.characterNodes = {};
-                d.displayname = d.name+(d.year ? ', '+d.year : "");
-                d.rating = d.rating && parseInt(d.rating) ? parseInt(d.rating) : 0 ;
+                d.displayname = d.name + (d.year ? ', ' + d.year : "");
+                d.rating = d.rating && parseFloat(d.rating) ? parseFloat(d.rating) : 0 ;
                 d.color = config.colors.movie;
                 d.y = 0; d.x = 0;
                 d.tooltip = [
@@ -447,7 +447,7 @@ var graphPlugins = {
                     {key: "rating", label: "Rating"}
                 ];
                 nodes.add(d);
-                if(d.director && d.director.name){
+                if(d.director && d.director.name) {
                     d.director.type = 'director';
                     d.director.rating = 0;
                     d.director.films = 0;
