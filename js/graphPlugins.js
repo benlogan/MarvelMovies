@@ -678,20 +678,4 @@ var graphPlugins = {
             return res;
         }, updateMovie);
     }
-<<<<<<< HEAD
 };
-
-$(document).ready(function(){
-    graphPlugins.forceGraph();
-    $("form#graphfilter").submit(function(e){
-        e.preventDefault();
-    });
-    $("[title]").qtip({
-        position: {
-            my: "bottom center", at: 'bottom center', target : "mouse"
-        }
-    });
-});
-=======
-};
->>>>>>> master
