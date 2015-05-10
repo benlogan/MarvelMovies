@@ -17,34 +17,46 @@
         <script type="text/javascript" src="js/jquery.qtip.min.js"></script>
         <script type="text/javascript" src="js/fancybox2/source/jquery.fancybox.pack.js"></script>
         <script type="text/javascript" src="js/d3.v3.min.js"></script>
-        <script type="text/javascript" src="js/page.js"></script>
-        <script type="text/javascript" src="js/graphPlugins.js"></script>
         <script type="text/javascript" src="js/d3-tip.js"></script>
+        <script type="text/javascript" src="js/graphPlugins.js"></script>
+        <script type="text/javascript" src="js/searchSuggester.js"></script>
+        <script>
+            function resumeForce () {
+                // check the stuff has actually loaded!
+                if(graphPlugins) {
+                    startForce(0.5);
+                }
+            }
+            function restartForce () {
+                // check the stuff has actually loaded!
+                if(graphPlugins) {
+                    trueRestart();
+                }
+            }
+        </script>
     </head>
     <body>
         <div class="row">
-            <div class="col-lg-offset-2 col-lg-8  col-md-10 header" style="margin-top: 50px;">
+            <div class="col-lg-offset-2 col-lg-8  col-md-10 header" style="margin-top: 10px;">
                 <h1>Project #1 - Marvel Movies</h1>
             </div>
-            <div class="col-lg-2" style="margin-top: 50px;">
+            <!--<div class="col-lg-2" style="margin-top: 50px;">
                 
-            </div>
+            </div>-->
             <div class="col-lg-offset-2 col-lg-8 col-md-10 content" style="margin-top: 30px;">
                 <form class="form-inline" id="graphfilter">
                     <div class="form-group" style="position: relative;margin-right: 20px;" id="movieselect">
                         <input class="form-control" type="text" name="movie" id="movie" placeholder="Movie"/>
-                        <div id="suggest" style="position: absolute; top: 100%;">
-
-                        </div>
+                        <div id="suggest" style="position: absolute; top: 100%;"></div>
                     </div>
-                    <div class="form-group" style="position: relative;margin-right: 20px;display : none;" id="connectionselect">
+                    <div class="form-group" id="connectionselect">
                         <label class="control-label">Connected by:</label>
                         <div id="button1" class="roundedOne">
-                            <input type="radio" value="" id="check" name="link" checked/>
+                            <input type="radio" value="" id="check" name="link"/>
                             <label for="check" title="All"></label>
                         </div>
                         <div id="button2" class="roundedOne">
-                            <input type="radio" value="movie" id="moviecheck" name="link"/>
+                            <input type="radio" value="movie" id="moviecheck" name="link" checked/>
                             <label for="moviecheck" title="Movie"></label>
                         </div>
                         <div id="button3" class="roundedOne">
@@ -62,10 +74,16 @@
                     </div>
                     <div class="form-group" style="position: relative;margin-right: 20px;" id="labeloption">
                         <label class="control-label" for="showlabels">Show Labels:</label>
-                        <input type="checkbox" id="showlabels" name="showlabels" title="Show Labels"/>
+                        <input type="checkbox" id="showlabels" name="showlabels" title="Show Labels" checked/>
                     </div>
                     <a href="#" class="btn btn-primary" id="clear">Clear</a>
                 </form>
+                <!--
+                <div id="controlbox">
+                    <button onclick="resumeForce()">Resume Force</button>
+                    <button onclick="restartForce()">Restart Force</button>
+                </div>
+                -->
                 <div id="grapharea" data-url="./data/movielist.json" class="col-lg-12" style="min-height: 500px;margin-top: 20px;">
                     <svg></svg>
                     <div style="position:absolute;bottom: 2px;right: 2px;z-index: 100;">
