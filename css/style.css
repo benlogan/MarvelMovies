@@ -1,26 +1,45 @@
-/*
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
-*/
-/* 
-    Created on : 21 Jan, 2015, 5:28:57 PM
-    Author     : shani
-*/
-
-body{
+body {
     overflow-y: scroll;
 }
-div#grapharea{
+
+#connectionselect {
+    position: relative;
+    margin-right: 20px;
+    /*display: none;*/
+}
+
+div#grapharea {
     box-shadow: 0px 0px 2px #ccc;border : 1px solid #ddd;
 }
 
 input[type=radio] {
     visibility: hidden;padding: 4px;
 }
-/* ROUNDED ONE */
+
+/* http://www.colourlovers.com/palette/3729999/The_light_was_here.. */
+
+#button1 {
+    background: #13364B;
+}
+
+#button2 {
+    background: #1D9880;
+}
+
+#button3 {
+    background: #D5F271;
+}
+
+#button4 {
+    background: #FC8236;
+}
+
+#button5 {
+    background: #A01852;
+}
+
 .roundedOne {
-	width: 28px;height: 28px;background: orange;        
+	width: 28px;height: 28px;
 	margin: 2px; border-radius: 50px;
 	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
 	position: relative;display: inline-block;
@@ -35,7 +54,6 @@ input[type=radio] {
 .roundedOne label:hover {
     opacity: 0.7;
 }
-
 .roundedOne label:after {
 	opacity: 0;
 	content: '';
@@ -52,4 +70,3 @@ input[type=radio] {
 .roundedOne label:hover::after { opacity: 0.7; }
 .roundedOne input[type=radio]:checked + label { opacity: 1; }
 .roundedOne input[type=radio]:checked + label:after { opacity: 1; }
-

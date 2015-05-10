@@ -1,49 +1,107 @@
-String.prototype.ucwords = function(){
-	return this.replace(/(?:^|\s)\S/g,function(v){return v.toUpperCase();});
+/*
+String.prototype.ucwords = function () {
+	return this.replace(/(?:^|\s)\S/g, function (v) { return v.toUpperCase(); });
 };
-String.prototype.ucfirst = function(){
-	return this.replace(/(^[a-z])/,function(v){return v.toUpperCase();});
+String.prototype.ucfirst = function () {
+	return this.replace(/(^[a-z])/, function (v) { return v.toUpperCase(); });
 };
-String.prototype.lcfirst = function(){
-	return this.replace(/(^[A-Z])/,function(v){return v.toLowerCase();});
+String.prototype.lcfirst = function () {
+	return this.replace(/(^[A-Z])/, function (v) { return v.toLowerCase(); });
 };
-String.prototype.camelCaseToWords = function(){
+String.prototype.camelCaseToWords = function () {
 	return this.split(/(?=[A-Z])/).join(" ");
 };
-String.prototype.Us2Space = function(){
-	return this.replace(/_/g," ");
+String.prototype.Us2Space = function () {
+	return this.replace(/_/g, " ");
 };
-String.prototype.short = function(len){
-    return (this.length> (len || 30) ? this.substr(0,(len || 30))+".." : this).toString();
+String.prototype.short = function (len) {
+    return (this.length > (len || 30) ? this.substr(0, (len || 30)) + ".." : this).toString();
 };
+*/
+
+$(document).ready(function () {
+
+    graphPlugins.forceGraph();
+    
+    $("form#graphfilter").submit(function (e) {
+        e.preventDefault();
+    });
+    
+    $("[title]").qtip({
+        position: {
+            my: "bottom center", at: 'bottom center', target : "mouse"
+        }
+    });
+});
+
+var gnodes;
+var gedges;
+
+var svg;
+var force;
+var nodes;
+var edges;
+
+function startForce(alpha) {
+    if (force) {
+        if (alpha) {
+            force.alpha(alpha).start();
+        } else {
+            force.start();
+        }
+    }
+}
+
+/*
+Remove force layout and data, then start again
+http://stackoverflow.com/questions/21338135/d3js-force-layout-destroy-and-reset
+**/
+function trueRestart() {
+    //svg.remove();
+    
+    gnodes.remove();
+    gedges.remove();
+
+    nodes = [];
+    links = [];
+    //force.nodes(nodes);
+    //force.links(links);
+    
+    graphPlugins.forceGraph();
+}
+
 var graphPlugins = {
-    forceGraph : function(){
+    
+    forceGraph : function () {
         var selector = '#grapharea';
         var div = d3.select(selector), $div = $(selector);
         var config = {
             textColor: div.attr("data-textcolor") || 'black',
             rmin: parseInt(div.attr("data-rmin")) || 2, rmax : parseInt(div.attr("data-rmax")) || 10,
-            w : $div.width(),h : $div.height(),minrating: 0.01,
+            w : $div.width(), h : $div.height(), minrating: 0.01,
             linkDistance: 10, linkStrength: 0.1,
+            friction: 0.9, gravity: 0.25,
             zoom: 1.0, zoomMin: 0.8, zoomMax: 8.0, zoomStep: 0.2,
-            colors: { movie: 'orange',director: 'magenta',star: 'blue',character: '#15ff00', active: 'red', hover: 'cyan' },
-            showlabel: false
+            colors: { movie: '#1D9880', star: '#D5F271', director: '#FC8236', character: '#A01852', active: 'black', hover: 'silver' },
+            showlabel: true
         };
-        var imdbApiUrl = function(node){
-            return "http://www.omdbapi.com/?i="+node.imdbid+"&plot=short&r=json";
+        var imdbApiUrl = function (node) {
+            return "http://www.omdbapi.com/?i=" + node.imdbid + "&plot=short&r=json";
         };
-        var movieImgUrl = function(node){
-            return "./images/movies/"+node.imdbid+".JPG";
+        var movieImgUrl = function (node) {
+            return "./images/movies/" + node.imdbid + ".JPG";
         };
-        var rScale = d3.scale.sqrt().range([config.rmin,config.rmax]);
+        var rScale = d3.scale.sqrt().range([config.rmin, config.rmax]);
         var url = div.attr("data-url");
-        var svg = div.select('svg');
-        svg.attr("width",config.w);
-        svg.attr("height",config.h);
+        svg = div.select('svg');
+        svg.attr("width", config.w);
+        svg.attr("height", config.h);
         var container = svg.append("g");
-        var gnodes = container.selectAll("g.node"), gedges = container.selectAll("line.edge"),activeNode = null;
+        gnodes = container.selectAll("g.node");
+        gedges = container.selectAll("line.edge");
+        var activeNode = null;
         
-        
+        /*
         var zoom = d3.behavior.zoom()
             .scaleExtent([config.zoomMin, config.zoomMax])
             .on("zoom", zoomed);
@@ -52,43 +110,60 @@ var graphPlugins = {
             config.zoom = d3.event.scale;
             container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
         }
-        function dragstarted(d) {
-            d3.event.sourceEvent.stopPropagation();
-            d3.select(this).classed("dragging", true);
-            force.start();
-        }
-        function dragged(d) { d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y); }
-        function dragended(d) { d3.select(this).classed("dragging", false);}
         
+        svg.attr("transform", "translate(0,0)").call(zoom).on("dblclick.zoom", null);
+        */
+        
+        function dragstarted(d) {
+            // why? not needed
+            //d3.event.sourceEvent.stopPropagation();
+            
+            d3.select(this).classed("fixed", d.fixed = true);
+            //d3.select(this).classed("dragging", true);
+            
+            // why? not needed
+            //startForce();
+        }
+        
+        /*
+        function dragged(d) { 
+            d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y); 
+        }
+        
+        function dragended(d) { 
+            d3.select(this).classed("dragging", false); 
+        }
+
         d3.behavior.drag()
-            .origin(function(d) { return d; })
+            .origin(function (d) { return d; })
             .on("dragstart", dragstarted)
             .on("drag", dragged)
             .on("dragend", dragended);
-
-        svg.attr("transform", "translate(0,0)").call(zoom).on("dblclick.zoom", null);
+        */
         
         var tip = {
-            getHtml: function(d){
-                var html = "<div class='tipcontent' style='color:"+d.color+"'>";
-                if(!d.tooltip || !d.tooltip.length) return html+"<h4>"+d.name+"</h4></div>";
-                for(var i=0;i<d.tooltip.length;i++){
-                    var text = d.tooltip[i].url ? "<a href='"+d.tooltip[i].url+"' target='_blank'>"+d[d.tooltip[i].key]+"</a>" : d[d.tooltip[i].key];
-                    if(d.tooltip[i].key==='name') html += "<h4>"+text+"</h4>";
+            getHtml: function (d) {
+                var html = "<div class='tipcontent' style='color:" + d.color + "'>";
+                if (!d.tooltip || !d.tooltip.length) {
+                    return html + "<h4>" + d.name + (d.year ? ", " + d.year : "") + "</h4></div>";
+                }
+                for (var i = 0; i < d.tooltip.length; i++) {
+                    var text = d.tooltip[i].url ? "<a href='" + d.tooltip[i].url + "' target='_blank'>" + d[d.tooltip[i].key] + "</a>" : d[d.tooltip[i].key];
+                    if(d.tooltip[i].key==='name' || d.tooltip[i].key==='displayname') html += "<h4>" + text + "</h4>";
                     else if(d.tooltip[i].label)
-                        html += "<span> "+d.tooltip[i].label+":</span> " + text; 
+                        html += "<span> " + d.tooltip[i].label + ":</span> " + text; 
                 }
                 html += "<div class='omdbinfo'><div class='ajaxloader'></span></div></div>";
                 html += "</div>";
                 return html;
             },
-            show: function(d){
+            show: function (d) {
                 $("div#infohover").html(tip.getHtml(d,"Hovered")).show();
             },
-            hide: function(){
+            hide: function () {
                 $("div#infohover").hide();
             },
-            showActive: function(){
+            showActive: function () {
                 filter.setActiveStroke();
                 if(activeNode){
                     $("div#infoactive").html(tip.getHtml(activeNode,"Active")).show();
@@ -105,7 +180,7 @@ var graphPlugins = {
                             },
                             success: function(data){
                                 if(data.Poster && data.Plot){
-                                    var html = "<a href='"+activeNode.url+"' target='_blank'><img src = '"+movieImgUrl(activeNode)+"' width='100%' height='200px' style='min-height:200px' /></a><p>"+data.Plot+"</p>";
+                                    var html = "<a href='" + activeNode.url + "' target='_blank'><img src = '" + movieImgUrl(activeNode) + "' width='100%' height='200px' style='min-height:200px' /></a><p>" + data.Plot + "</p>";
                                     $("div#infoactive").find(".omdbinfo").html(html);
                                 }
                             }
@@ -116,11 +191,11 @@ var graphPlugins = {
             }
         };
         
-        var nodes = {
+        nodes = {
             keys: [],
             list: [],
             makeKey : function(d){
-                return d.type+"_"+d.name.toLowerCase().replace(/ /g,"_");
+                return d.type + "_" + d.name.toLowerCase().replace(/ /g,"_") + (d.year ? "_" + d.year : "");
             },
             exists: function(data){
                 return this.keys.indexOf(this.makeKey(data)) > -1;
@@ -135,25 +210,26 @@ var graphPlugins = {
                     this.list.push(data);
                 }else data.id = this.makeKey(data);
             },
-            get: function(name,type){
-                var key = arguments.length === 2 ? this.makeKey({name: name,type: type}) : name;
-                for(var i=0;i<this.list.length;i++){
+            get: function(name,type,year){
+                var key = arguments.length >= 2 ? this.makeKey({name: name,type: type, year : (year || null)}) : name;
+                for(var i = 0; i < this.list.length; i++){
                     if(key === this.list[i].id) return this.list[i];
                 }
                 return null;
             },
-            getAll: function(){ return this.list;}
+            getAll: function(){ return this.list; }
         };
-        var edges = {
+        
+        edges = {
             keys: [],
             list: [],
             makeKey : function(s,d){
-                return s.id+":"+d.id;
+                return s.id + ":" + d.id;
             },
-            exists: function(s,d){
+            exists: function(s, d) {
                 return this.keys.indexOf(this.makeKey(s,d)) > -1;
             },
-            add: function(s,d){
+            add: function(s, d) {
                 if(!this.exists(s,d)){
                     var e = this.makeKey(s,d);
                     this.keys.push(e);
@@ -164,7 +240,7 @@ var graphPlugins = {
             },
             get: function(s,d){
                 var key = this.makeKey(s,d);
-                for(var i=0;i<this.list.length;i++){
+                for(var i = 0; i < this.list.length; i++){
                     if(key === this.list[i].id) return this.list[i];
                 }
                 return null;
@@ -173,133 +249,159 @@ var graphPlugins = {
         };
         
         var filter = {
-            disableAll: function(){
+            disableAll: function() {
                 gedges.each(function(d){ d.active = 0; });
                 gnodes.each(function(d){ d.active = 0; });
             },
-            enableAll : function(){
+            enableAll: function() {
                 gedges.each(function(d){ d.active = 1; });
                 gnodes.each(function(d){ 
                     d.active = 1; 
                     d.zoom = 1;
                 });
             },
-            enableConnected: function(id,type){
-                gedges.each(function(d){
-                    if(!d.active){
-                        if(d.source.id===id && (type === "" || d.target.type === type)){
+            enableConnected: function(id, type) {
+                gedges.each(function(d) {
+                    if(!d.active) {
+                        if(d.source.id === id && (type === "" || d.target.type === type)) {
                             d.target.active = 1;
                             d.active = 1;
-                        }else if(d.target.id===id && (type === "" || d.source.type === type)){
+                        } else if(d.target.id === id && (type === "" || d.source.type === type)) {
                             d.source.active = 1;
                             d.active = 1;
                         }
                     }
                 });
             },
-            enableType: function(type){
-                gedges.each(function(d){
-                    if(!d.active){
-                        if(d.target.type === type){
+            enableType: function(type) {
+                gedges.each(function(d) {
+                    if(!d.active) {
+                        /*
+                        if(d.target.type === type) {
                             d.target.active = 1;
                             d.active = 1;
-                        }else if(d.source.type === type){
+                        } else if(d.source.type === type) {
+                            d.source.active = 1;
+                            d.active = 1;
+                        }*/
+                        if((d.target.type === type && d.source.type === type) ||
+                          (d.source.type === 'movie' && d.target.type === type)) {
+                            d.target.active = 1;
                             d.source.active = 1;
                             d.active = 1;
                         }
                     }
                 });
             },
-            setOpacity: function(){
+            setOpacity: function() {
                 gnodes.transition().duration(400).style('opacity',function(d){ return d.active ? d.hover || d.active : d.active; });
                 gedges.transition().duration(400).style('opacity',function(d){ return d.active ? d.hover || d.active : d.active; });
             },
-            setActiveStroke: function(){
+            setActiveStroke: function() {
                 gnodes.style('stroke',function(d){
                     return activeNode && activeNode.id === d.id ? config.colors.active : '';
                 }).style("stroke-width",function(d){
                     return activeNode && activeNode.id === d.id ? '3px' : '0px';
                 });
             },
-            layout: function(zoom){
+            layout: function(zoom) {
                 config.zoom = arguments.length ? zoom || 1 : config.zoom;
+                /*
                 if(activeNode)
-                    container.attr("transform", "translate("+(-activeNode.x*config.zoom)+","+(-activeNode.y*config.zoom)+"scale(" + config.zoom + ")");
+                    container.attr("transform", "translate("+(-activeNode.x*config.zoom)+","+(-activeNode.y*config.zoom)+")scale(" + config.zoom + ")");
                 else
                     container.attr("transform", "translate(0,0)scale(" + config.zoom + ")");
+                */
                 gnodes.style('stroke',function(d){ return activeNode && d.id === activeNode.id ? config.colors.active : '' ;})
                       .style("stroke-width",function(d){ return activeNode && d.id === activeNode.id ? '3px' : '0x' ;});
                 gnodes.selectAll("circle.bubble").transition().duration(500)
                     .attr("r",function(d){
-                        d.r = rScale(d.rating+0.001);
+                        d.r = rScale(d.rating + 0.001);
                         return d.r * d.zoom * d.active; 
                     });
                 filter.setOpacity();
-                force.alpha(0.1).start();
+
+                startForce(0.1);
             }
         };
         
-        var tick = function(e){
-            if(force.alpha()<0.025) force.alpha(0);
-            gnodes.attr("transform",function(d){ return "translate("+d.x+","+d.y+")"; });
+        var tick = function(e) {
+            if(force.alpha() < 0.025) force.alpha(0);
+            gnodes.attr("transform",function(d) { return "translate(" + d.x + "," + d.y + ")"; });
             gedges.attr("x1", function(d) { return d.source.x; })
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
-                .attr("y2", function(d) {  return d.target.y; });
+                .attr("y2", function(d) { return d.target.y; });
         };
         
-        var force = d3.layout.force()
-            .linkStrength(function(d){
+        force = d3.layout.force()
+            .linkStrength(function(d) {
                 return config.linkStrength/d.zoom/config.zoom;
-            }).linkDistance(function(d){
+            }).linkDistance(function(d) {
                 return config.linkDistance*config.zoom*config.zoom*(config.showlabel ? 3 : 1);
-            }).charge(function(d){
-                return -30*config.zoom*(d.zoom+config.minrating)*d.active;
+            }).charge(function(d) {
+                return -30*config.zoom*(d.zoom + config.minrating)*d.active;
             }).size([config.w-2*config.rmax,config.h-2*config.rmax])
             .on("tick", tick).on("end", tick);
 
-        var selectMovie = function(fc){
-            $("#connectionselect").fadeIn('fast');
+        var drag = force.drag().on("dragstart", dragstarted);
+        
+        var selectMovie = function(fc) {
+            //$("#connectionselect").fadeIn('fast');
             activeNode = fc;
             var active = $("input[name='link']:checked").val() || "";
             filter.disableAll();
             fc.zoom = 2;
-            filter.enableConnected(fc.id,active);
-            if(!active || active==='star'){
-                for(var s in fc.starNodes){
-                    filter.enableConnected(fc.starNodes[s].id,'movie');
+            
+            // enable movies
+            filter.enableConnected(fc.id, active);
+            
+            // enable any other filters
+            if(!active || active === 'star') {
+                for(var s in fc.starNodes) {
+                    filter.enableConnected(fc.starNodes[s].id, 'movie');
                 }
             }
-            if(!active || active==='character'){
-                for(var s in fc.characterNodes){
-                    filter.enableConnected(fc.characterNodes[s].id,'movie');
+            if(!active || active === 'character') {
+                for(var s in fc.characterNodes) {
+                    filter.enableConnected(fc.characterNodes[s].id, 'movie');
                 }
             }
-            if(!active || active==='director'){
-                for(var s in fc.starNodes){
-                    filter.enableConnected(fc.director.id,'movie');
+            if(!active || active === 'director') {
+                for(var s in fc.starNodes) {
+                    filter.enableConnected(fc.director.id, 'movie');
                 }
             }
             fc.active = 1;
             filter.layout(3);
         };
         
-        var updateMovie = function(){
-            if($("input#movie").val())
-                selectMovie(nodes.get($("input#movie").val(),'movie'));
+        var updateMovie = function() {
+            if($("input#movie").val()) {
+                var name = $("input#movie").val(),m = name.match(/, (\d+)/), year = m ? m[1] : '';
+                if(m) name = name.replace(/, \d+/, '');
+                selectMovie(nodes.get(name, 'movie', year));
+            }
         };
         
+        var changeFilters = function() {
+            applyFilters();
+        }
         
         //Page Events
-        $("input#movie").keyup(function(e){
+        $("input#movie").keyup(function(e) {
             e.preventDefault();
             e.stopPropagation();
             var code = e.keyCode || e.which;
-            if(code === 13 && nodes.get($(this).val(),'movie')){
+            var name = $(this).val(),m = name.match(/, (\d+)/), year = m ? m[1] : '';
+            if(m) name = name.replace(/, \d+/, '');
+            if(code === 13 && nodes.get(name, 'movie', year)) {
                 updateMovie();
             }
         });
-        $("input[name='link']").change(updateMovie);
+        
+        $("input[name='link']").change(changeFilters);//(updateMovie);
+        
         $("a#clear").click(function(e){
             e.preventDefault();
             filter.enableAll();
@@ -307,41 +409,49 @@ var graphPlugins = {
             tip.showActive();
             config.zoom = 1;
             $("input#movie").val("");
-            $("#connectionselect").fadeOut('fast');
+            //$("#connectionselect").fadeOut('fast');
             $("input#check[name='link']").prop('checked',true);
             filter.layout(1);
         });
-        $("body").keyup(function(e){
+        
+        $("body").keyup(function(e) {
             var code = e.keyCode || e.which;
-            if(code === 27){
-                if(activeNode){
+            if(code === 27) {
+                if(activeNode) {
                     activeNode = null;
                     edgeHighlight(activeNode,false);
                 }
                 tip.showActive();
             }
         });
-        $("input#showlabels").click(function(){
+        
+        $("input#showlabels").click(function() {
             config.showlabel = !config.showlabel;
-            gnodes.selectAll("text").style("opacity",config.showlabel ? 1 : 0);
-            force.alpha(0.1).start();
+            showHideLabels();
         });
         
-        var edgeHighlight = function(d,highlight){
-            if(highlight){
+        function showHideLabels() {
+            gnodes.selectAll("text").style("opacity", config.showlabel ? 1 : 0);
+            
+            // why do this, I don't think they really need rearranging and its not behaving correctly
+            //force.alpha(0.1).start();
+        }
+        
+        var edgeHighlight = function(d,highlight) {
+            if(highlight) {
                 gedges.each(function(de){
                     de.hover = de.source.id === d.id || de.target.id === d.id ? 1 : 0.1;
                     de.source.hover = Math.max(de.source.hover,de.hover);
                     de.target.hover = Math.max(de.target.hover,de.hover);
                 });
-                gnodes.style('stroke',function(dn){
+                gnodes.style('stroke',function(dn) {
                     return activeNode && activeNode.id === dn.id ? config.colors.active : ( dn.id === d.id ? config.colors.hover : '');
-                }).style("stroke-width",function(dn){
+                }).style("stroke-width",function(dn) {
                     return activeNode && activeNode.id === dn.id ? '3px' : ( dn.id === d.id ? '3px' : '');
                 });
             }
-            else{
-                gedges.each(function(de){
+            else {
+                gedges.each(function(de) {
                     de.hover = 0;
                     de.source.hover = 0;
                     de.target.hover = 0;
@@ -352,7 +462,8 @@ var graphPlugins = {
         };
         
         //Creates graph afresh from data available in force
-        var refreshGraph = function(){
+        var refreshGraph = function() {
+            
             //Render edges
             gedges = gedges.data(force.links()).enter().append('line')
                 .attr("class", "edge")
@@ -362,88 +473,117 @@ var graphPlugins = {
                 .attr("x1", function(d) { return d.source.x; })
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
-                .attr("y2", function(d) {  return d.target.y; });;
+                .attr("y2", function(d) { return d.target.y; });;
         
             //Render nodes
-            gnodes = gnodes.data(force.nodes()).enter().append('g').attr("class","node").each(function(d){
-                d.x = Math.random()*config.w;
-                d.y = Math.random()*config.h;
-            }).attr("transform",function(d){ return "translate("+d.x+","+d.y+")"; });
+            gnodes = gnodes.data(force.nodes()).enter().append('g').attr("class","node").each(function(d) {
+                d.x = Math.random() * config.w;
+                d.y = Math.random() * config.h;
+            }).attr("transform",function(d) { return "translate(" + d.x + "," + d.y + ")"; });
             gnodes.selectAll('circle').remove();
             
-            var circle = gnodes.append('circle').attr("class","bubble");
+            var circle = gnodes.append('circle').attr("class", "bubble");
             circle.attr("fill",function(d){ return d.color; })
                 .attr('r',0).attr("stroke-width", 2)
-                .transition().duration(500).attr("r",function(d){
+                .transition().duration(500).attr("r",function(d) {
                     d.r = rScale(d.rating);
-                    return d.r*d.zoom; 
+                    return d.r * d.zoom; 
                 });
 //            circle.call(tip);
-            circle.on("mouseover",function(d){
-                if(activeNode && d.id===activeNode.id) return;
+            
+            circle.on("mouseover",function(d) {
+                if(activeNode && d.id === activeNode.id) return;
                 tip.hide();
                 tip.show(d);
-                edgeHighlight(d,true);
-            }).on("mouseout",function(d){
-                edgeHighlight(d,false);
+                edgeHighlight(d, true);
+            }).on("mouseout",function(d) {
+                edgeHighlight(d, false);
                 tip.hide();
-                if(activeNode) edgeHighlight(activeNode,true);
+                if(activeNode) edgeHighlight(activeNode, true);
 //                window.setTimeout(function(){
 //                    if($("div.d3-tip").text().indexOf(d.name)>-1) tip.hide(d);
 //                },3000);
-            }).on("click",function(d){
+
+            }).on("click",function(d) {
                 if(activeNode && activeNode.id !== d.id)
-                    edgeHighlight(activeNode,false);
+                    edgeHighlight(activeNode, false);
                 activeNode = d;
-                edgeHighlight(d,true);
+                edgeHighlight(d, true);
                 tip.hide();
                 tip.showActive();
-            }).on("dblclick",function(d){
+            }).on("dblclick",function(d) {
                 var type = $("input[name='link']:checked").val();
                 activeNode = d;
-                edgeHighlight(d,true);
-                filter.enableConnected(d.id,type);
+                edgeHighlight(d, true);
+                filter.enableConnected(d.id, type);
                 filter.layout();
             });
             
-            //Render Circles
-            gnodes.append("text").text(function(d){return d.name.length > 12 ? (d.name.substr(0,10)+"..") : d.name;})
+            //Render Text
+            gnodes.append("text").text(function(d){return d.name.length > 12 ? (d.name.substr(0,10) + "..") : d.name;})
                     .style("opacity",0).style("font-size",'10px')
                     .style("stroke-width","0.3")
                     .attr("x",function(){ return -this.getBBox().width/2; })
                     .attr("y",function(d){ return -rScale(d.rating); })
                     .style("pointer-events","none");
             
-            $('body').click(function(e){
-                if(e.target.tagName!=='circle'){
+            $('body').click(function(e) {
+                if(e.target.tagName!=='circle') {
                     activeNode = null;
-                    edgeHighlight(null,false);
+                    edgeHighlight(null, false);
                 }
                 tip.showActive();
             });
             
-            gnodes.call(force.drag);
-            force.alpha(0.1).start();
+            // new function call to listen to filters immediately
+            applyFilters();
+            
+            showHideLabels();
+            
+            // what is this doing? it's critical for drag anyway!
+            //gnodes.call(force.drag);
+            gnodes.call(drag);
+            
+            startForce(0.1);
         };
+        
+        function applyFilters() {
+            filter.disableAll();
+            
+            var type = $("input[name='link']:checked").val();
+            
+            // all by type!
+            filter.enableType(type);
+            
+            // always enable movies (if we haven't already)!
+            if(type !== 'movie') {
+                filter.enableType('movie');
+            }
+            
+            filter.layout(3);
+        }
         
         //Load Data
         $.fancybox.showLoading();
         d3.json(url,function(err,data){
             $.fancybox.hideLoading();
             if(err) return $.fancybox("<p>Failed to load data.</p>");
-            data.forEach(function(d,i){
+            
+            data.forEach(function(d,i) {
                 d.type = 'movie';
                 d.starNodes = {};
                 d.characterNodes = {};
-                d.rating = d.rating && parseInt(d.rating) ? parseInt(d.rating) : 0 ;
+                d.displayname = d.name + (d.year ? ', ' + d.year : "");
+                d.rating = d.rating && parseFloat(d.rating) ? parseFloat(d.rating) : 0 ;
                 d.color = config.colors.movie;
                 d.y = 0; d.x = 0;
                 d.tooltip = [
-                    { key: "name",url : d.url || "" },
-                    {key: "rating", label: "Rating"}
+                    { key: "displayname", url : d.url || "" },
+                    { key: "rating", label: "Rating" }
                 ];
                 nodes.add(d);
-                if(d.director && d.director.name){
+
+                if(d.director && d.director.name) {
                     d.director.type = 'director';
                     d.director.rating = 0;
                     d.director.films = 0;
@@ -453,7 +593,7 @@ var graphPlugins = {
                         {key: "rating", label: "Average Rating"}
                     ];
                     nodes.add(d.director);
-                    edges.add(nodes.get(d.id),nodes.get(d.director.id));
+                    edges.add(nodes.get(d.id), nodes.get(d.director.id));
                     d.director.rating = (d.director.rating*d.director.films+d.rating)/(d.director.films+1).toFixed(1);
                     d.director.films++;
                 }
@@ -467,7 +607,7 @@ var graphPlugins = {
                         {key: "rating", label: "Average Rating"}
                     ];
                     nodes.add(s);
-                    edges.add(nodes.get(d.id),nodes.get(s.id));
+                    edges.add(nodes.get(d.id), nodes.get(s.id));
                     d.starNodes[s.id] = s;
                     d.starNodes[s.id].rating = (d.starNodes[s.id].rating * d.starNodes[s.id].films + d.rating)/(d.starNodes[s.id].films+1).toFixed(1);
                     d.starNodes[s.id].films++;
@@ -488,49 +628,57 @@ var graphPlugins = {
                     d.characterNodes[character.id].films++;
                 });
             });
-            data.forEach(function(d,i){
-                if(!d.id) return console.error("missing id for movie",d.name);
-                for(var j=i+1;j<data.length;j++){
-                    if(!data[j].id){
-                        console.error("missing id for movie",data[j].name);
+            
+            // what is this doing?
+            // adding the edges to represents links between movies based on overlapping actors/characters/director?
+            data.forEach(function(d,i) {
+                if(!d.id) return console.error("missing id for movie", d.name);
+                for(var j = i + 1; j < data.length; j++) {
+                    if(!data[j].id) {
+                        console.error("missing id for movie", data[j].name);
                         continue;
                     }
                     var w = 0;
                     if(d.director.id === data[j].director.id) w++;
-                    d.stars.forEach(function(s1){
-                        data[j].stars.forEach(function(s2){
+                    d.stars.forEach(function(s1) {
+                        data[j].stars.forEach(function(s2) {
                             if(s1.id === s2.id) w++;
                         });
                     });
-                    d.characters.forEach(function(c1){
-                        data[j].characters.forEach(function(c2){
+                    d.characters.forEach(function(c1) {
+                        data[j].characters.forEach(function(c2) {
                             if(c1.id === c2.id) w++;
                         });
                     });
-                    if(w){
-                        edges.add(d,data[j]);
+                    if (w) {
+                        edges.add(d, data[j]);
                     }
                 }
             });
+            
             var min = d3.min(nodes.getAll(),function(d){ return d.rating;})*config.minrating,
                 max = d3.max(nodes.getAll(),function(d){ return d.rating;})*3;
                 rScale.domain([min, max]);
+            
             force.nodes(nodes.getAll()).links(edges.getAll())
-                .linkStrength(0.1)
-                .friction(0.9)
-                .gravity(0.25)
+                .linkStrength(config.linkStrength)
+                .friction(config.friction)
+                .gravity(config.gravity)
                 .theta(0.8);
+            
             refreshGraph();
         });
         
-        addSuggester("input#movie",function(term){
+        // hook up search box population
+        addSuggester("input#movie",function(term) {
             var res = [];
-            nodes.getAll().forEach(function(n){
-                if(n.type==='movie' && n.name.toLowerCase().indexOf(term.toLowerCase())>-1) res.push(n.name);
+            nodes.getAll().forEach(function(n) {
+                if(n.type==='movie' && n.name.toLowerCase().indexOf(term.toLowerCase())>-1) res.push(n.name + (n.year ? ", " + n.year : ""));
             });
             return res;
-        },updateMovie);
+        }, updateMovie);
     }
+<<<<<<< HEAD
 };
 
 $(document).ready(function(){
@@ -544,3 +692,6 @@ $(document).ready(function(){
         }
     });
 });
+=======
+};
+>>>>>>> master

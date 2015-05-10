@@ -3,14 +3,13 @@
   font-size: 11px;
   font-weight: bold;
   padding: 12px;
-  background: black;
+  /*background: black;*/
   border-radius: 2px;
   pointer-events: none;
 }
-.d3-tip span{
+.d3-tip span {
     margin: 0px 4px 8px 0px;
 }
-
 /* Creates a small triangle extender for the tooltip */
 .d3-tip:after {
   box-sizing: border-box;
@@ -30,7 +29,6 @@
   left: 0;
   text-align: center;
 }
-
 /* Eastward tooltips */
 .d3-tip.e:after {
   content: "\25C0";
@@ -38,7 +36,6 @@
   top: 50%;
   left: -8px;
 }
-
 /* Southward tooltips */
 .d3-tip.s:after {
   content: "\25B2";
@@ -47,7 +44,6 @@
   left: 0;
   text-align: center;
 }
-
 /* Westward tooltips */
 .d3-tip.w:after {
   content: "\25B6";
@@ -55,31 +51,32 @@
   top: 50%;
   left: 100%;
 }
-.d3-tip .tipcontent a,.d3-tip .tipcontent h3,.d3-tip .tipcontent span{
+.d3-tip .tipcontent a,.d3-tip .tipcontent h3,.d3-tip .tipcontent span {
     color: inherit;
 }
-.d3-tip a{
+.d3-tip a {
     text-decoration: underline;
 }
-.d3-tip div{
+.d3-tip div {
     margin-top:5px;
 }
-div.ajaxloader{
+div.ajaxloader {
     background-image: url("../images/ajax-loader_blue.gif");
-    height: 24px;width: 24px;min-height: 16px;display: none;
+    width: 24px;
+    height: 24px;
+    min-height: 16px;
+    display: none;
 }
-div.omdbinfo{
+div.omdbinfo {
     margin-top: 10px;
 }
 div.omdbinfo *{
     margin-top: 5px;
-    color: white;
+    /*color: white;*/
 }
-
-div#infoactive{
-    box-shadow: 0px 0px 10px red;border-radius: 4px; border: 1px solid red;
+div#infoactive {
+    box-shadow: 0px 0px 10px black;border-radius: 4px; border: 1px solid black;
 }
-
-div#infohover{
-    box-shadow: 0px 0px 10px cyan; border: 1px solid cyan;
+div#infohover {
+    box-shadow: 0px 0px 10px silver; border: 1px solid silver;
 }
