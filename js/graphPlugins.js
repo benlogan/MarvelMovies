@@ -78,8 +78,11 @@ var graphPlugins = {
         var config = {
             textColor: div.attr("data-textcolor") || 'black',
             rmin: parseInt(div.attr("data-rmin")) || 2, rmax : parseInt(div.attr("data-rmax")) || 10,
-            w : $div.width(), h : $div.height(), minrating: 0.01,
-            linkDistance: 10, linkStrength: 0.1,
+            w: $div.width(), h: $div.height(), minrating: 0.01,
+            charge: -50,
+            chargeDistance: 200,
+            linkDistance: 10, 
+            linkStrength: 0.1,
             friction: 0.9, gravity: 0.25,
             zoom: 1.0, zoomMin: 0.8, zoomMax: 8.0, zoomStep: 0.2,
             colors: { movie: '#1D9880', star: '#D5F271', director: '#FC8236', character: '#A01852', active: 'black', hover: 'silver' },
@@ -326,8 +329,12 @@ var graphPlugins = {
         };
         
         var tick = function(e) {
-            if(force.alpha() < 0.025) force.alpha(0);
+            //if(force.alpha() < 0.025) force.alpha(0); //why?
+            
+            // why do we need a transform/translate here - why can't we just use the current x/y?
             gnodes.attr("transform",function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+            //gnodes.attr("cx", function(d) { return d.x; }).attr("cy", function(d) { return d.y; });
+            
             gedges.attr("x1", function(d) { return d.source.x; })
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
@@ -335,14 +342,31 @@ var graphPlugins = {
         };
         
         force = d3.layout.force()
-            .linkStrength(function(d) {
-                return config.linkStrength/d.zoom/config.zoom;
-            }).linkDistance(function(d) {
-                return config.linkDistance*config.zoom*config.zoom*(config.showlabel ? 3 : 1);
-            }).charge(function(d) {
-                return -30*config.zoom*(d.zoom + config.minrating)*d.active;
-            }).size([config.w-2*config.rmax,config.h-2*config.rmax])
-            .on("tick", tick).on("end", tick);
+            .linkStrength(
+            //function(d) {
+            //    return config.linkStrength/d.zoom/config.zoom;
+            //}
+            config.linkStrength
+            ).linkDistance(
+            //function(d) {
+            //    return config.linkDistance*config.zoom*config.zoom*(config.showlabel ? 3 : 1);
+            //}
+            config.linkDistance
+            ).charge(
+            //function(d) {
+            //    return -30*config.zoom*(d.zoom + config.minrating)*d.active;
+            //}
+            config.charge
+            ).chargeDistance(
+            config.chargeDistance
+            ).size(
+            //[config.w-2*config.rmax,config.h-2*config.rmax]
+            [config.w, config.h]
+            )
+            .friction(config.friction)
+            .gravity(config.gravity)
+            .on("tick", tick)
+            //.on("end", tick); //why?
 
         var drag = force.drag().on("dragstart", dragstarted);
         
@@ -477,9 +501,11 @@ var graphPlugins = {
         
             //Render nodes
             gnodes = gnodes.data(force.nodes()).enter().append('g').attr("class","node").each(function(d) {
+                // this is their initial position, very important
                 d.x = Math.random() * config.w;
                 d.y = Math.random() * config.h;
             }).attr("transform",function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+            
             gnodes.selectAll('circle').remove();
             
             var circle = gnodes.append('circle').attr("class", "bubble");
@@ -660,11 +686,15 @@ var graphPlugins = {
                 max = d3.max(nodes.getAll(),function(d){ return d.rating;})*3;
                 rScale.domain([min, max]);
             
-            force.nodes(nodes.getAll()).links(edges.getAll())
+            force.nodes(nodes.getAll())
+                 .links(edges.getAll())
+            // Not needed! We set all the props earlier!
+            /*
                 .linkStrength(config.linkStrength)
                 .friction(config.friction)
                 .gravity(config.gravity)
                 .theta(0.8);
+            */
             
             refreshGraph();
         });
