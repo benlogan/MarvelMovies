@@ -70,30 +70,35 @@ function trueRestart() {
     graphPlugins.forceGraph();
 }
 
+var imdbApiUrl = function (node) {
+    return "http://www.omdbapi.com/?i=" + node.imdbid + "&plot=short&r=json";
+};
+
+var movieImgUrl = function (node) {
+    return "./images/movies/" + node.imdbid + ".JPG";
+};
+
 var graphPlugins = {
     
     forceGraph : function () {
         var selector = '#grapharea';
         var div = d3.select(selector), $div = $(selector);
+        
         var config = {
             textColor: div.attr("data-textcolor") || 'black',
             rmin: parseInt(div.attr("data-rmin")) || 2, rmax : parseInt(div.attr("data-rmax")) || 10,
             w: $div.width(), h: $div.height(), minrating: 0.01,
-            charge: -50,
-            chargeDistance: 200,
-            linkDistance: 10, 
-            linkStrength: 0.1,
-            friction: 0.9, gravity: 0.25,
-            zoom: 1.0, zoomMin: 0.8, zoomMax: 8.0, zoomStep: 0.2,
+            //charge: -50,
+            //chargeDistance: 200,
+            //linkDistance: 10, 
+            //linkStrength: 0.1,
+            //friction: 0.9, 
+            //gravity: 0.25,
+            zoom: 1.0, //zoomMin: 0.8, zoomMax: 8.0, zoomStep: 0.2,
             colors: { movie: '#1D9880', star: '#D5F271', director: '#FC8236', character: '#A01852', active: 'black', hover: 'silver' },
             showlabel: true
         };
-        var imdbApiUrl = function (node) {
-            return "http://www.omdbapi.com/?i=" + node.imdbid + "&plot=short&r=json";
-        };
-        var movieImgUrl = function (node) {
-            return "./images/movies/" + node.imdbid + ".JPG";
-        };
+        
         var rScale = d3.scale.sqrt().range([config.rmin, config.rmax]);
         var url = div.attr("data-url");
         svg = div.select('svg');
@@ -197,43 +202,43 @@ var graphPlugins = {
         nodes = {
             keys: [],
             list: [],
-            makeKey : function(d){
+            makeKey : function(d) {
                 return d.type + "_" + d.name.toLowerCase().replace(/ /g,"_") + (d.year ? "_" + d.year : "");
             },
-            exists: function(data){
+            exists: function(data) {
                 return this.keys.indexOf(this.makeKey(data)) > -1;
             },
-            add: function(data){
-                if(!this.exists(data)){
+            add: function(data) {
+                if(!this.exists(data)) {
                     data.id = this.makeKey(data);
                     data.zoom = 1;
                     data.active = 1;
                     data.hover = 0;
                     this.keys.push(data.id);
                     this.list.push(data);
-                }else data.id = this.makeKey(data);
+                } else data.id = this.makeKey(data);
             },
-            get: function(name,type,year){
+            get: function(name, type, year) {
                 var key = arguments.length >= 2 ? this.makeKey({name: name,type: type, year : (year || null)}) : name;
-                for(var i = 0; i < this.list.length; i++){
+                for(var i = 0; i < this.list.length; i++) {
                     if(key === this.list[i].id) return this.list[i];
                 }
                 return null;
             },
-            getAll: function(){ return this.list; }
+            getAll: function() { return this.list; }
         };
         
         edges = {
             keys: [],
             list: [],
-            makeKey : function(s,d){
+            makeKey : function(s, d) {
                 return s.id + ":" + d.id;
             },
             exists: function(s, d) {
                 return this.keys.indexOf(this.makeKey(s,d)) > -1;
             },
             add: function(s, d) {
-                if(!this.exists(s,d)){
+                if(!this.exists(s,d)) {
                     var e = this.makeKey(s,d);
                     this.keys.push(e);
                     this.list.push({
@@ -308,7 +313,8 @@ var graphPlugins = {
                 });
             },
             layout: function(zoom) {
-                config.zoom = arguments.length ? zoom || 1 : config.zoom;
+                //config.zoom = arguments.length ? zoom || 1 : config.zoom;
+                
                 /*
                 if(activeNode)
                     container.attr("transform", "translate("+(-activeNode.x*config.zoom)+","+(-activeNode.y*config.zoom)+")scale(" + config.zoom + ")");
@@ -318,7 +324,7 @@ var graphPlugins = {
                 gnodes.style('stroke',function(d){ return activeNode && d.id === activeNode.id ? config.colors.active : '' ;})
                       .style("stroke-width",function(d){ return activeNode && d.id === activeNode.id ? '3px' : '0x' ;});
                 gnodes.selectAll("circle.bubble").transition().duration(500)
-                    .attr("r",function(d){
+                    .attr("r", function(d) {
                         d.r = rScale(d.rating + 0.001);
                         return d.r * d.zoom * d.active; 
                     });
@@ -332,8 +338,11 @@ var graphPlugins = {
             //if(force.alpha() < 0.025) force.alpha(0); //why?
             
             // why do we need a transform/translate here - why can't we just use the current x/y?
-            gnodes.attr("transform",function(d) { return "translate(" + d.x + "," + d.y + ")"; });
             //gnodes.attr("cx", function(d) { return d.x; }).attr("cy", function(d) { return d.y; });
+            gnodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+            
+            // enable collision detection/prevention
+            //gnodes.each(collide(0.5, nodes.getAll()));
             
             gedges.attr("x1", function(d) { return d.source.x; })
                 .attr("y1", function(d) { return d.source.y; })
@@ -341,8 +350,8 @@ var graphPlugins = {
                 .attr("y2", function(d) { return d.target.y; });
         };
         
-        force = d3.layout.force()
-            .linkStrength(
+        /*
+        .linkStrength(
             //function(d) {
             //    return config.linkStrength/d.zoom/config.zoom;
             //}
@@ -357,14 +366,18 @@ var graphPlugins = {
             //    return -30*config.zoom*(d.zoom + config.minrating)*d.active;
             //}
             config.charge
-            ).chargeDistance(
-            config.chargeDistance
-            ).size(
-            //[config.w-2*config.rmax,config.h-2*config.rmax]
-            [config.w, config.h]
             )
-            .friction(config.friction)
-            .gravity(config.gravity)
+            .size([config.w-2*config.rmax,config.h-2*config.rmax])
+        */
+        
+        force = d3.layout.force()
+            .size([config.w, config.h])
+            //.linkStrength(config.linkStrength)
+            //.linkDistance(config.linkDistance)
+            //.charge(config.charge)
+            //.chargeDistance(config.chargeDistance)
+            //.friction(config.friction)
+            //.gravity(config.gravity)
             .on("tick", tick)
             //.on("end", tick); //why?
 
@@ -375,7 +388,7 @@ var graphPlugins = {
             activeNode = fc;
             var active = $("input[name='link']:checked").val() || "";
             filter.disableAll();
-            fc.zoom = 2;
+            //fc.zoom = 2;
             
             // enable movies
             filter.enableConnected(fc.id, active);
@@ -461,16 +474,16 @@ var graphPlugins = {
             //force.alpha(0.1).start();
         }
         
-        var edgeHighlight = function(d,highlight) {
+        var edgeHighlight = function(d, highlight) {
             if(highlight) {
                 gedges.each(function(de){
                     de.hover = de.source.id === d.id || de.target.id === d.id ? 1 : 0.1;
                     de.source.hover = Math.max(de.source.hover,de.hover);
                     de.target.hover = Math.max(de.target.hover,de.hover);
                 });
-                gnodes.style('stroke',function(dn) {
+                gnodes.style('stroke', function(dn) {
                     return activeNode && activeNode.id === dn.id ? config.colors.active : ( dn.id === d.id ? config.colors.hover : '');
-                }).style("stroke-width",function(dn) {
+                }).style("stroke-width", function(dn) {
                     return activeNode && activeNode.id === dn.id ? '3px' : ( dn.id === d.id ? '3px' : '');
                 });
             }
@@ -493,7 +506,7 @@ var graphPlugins = {
                 .attr("class", "edge")
                 .style("stroke-width", 1).attr("fill",function(d){
                     return d.target.color;
-                }).attr("stroke",function(d){return d.target.color || 'grey';})
+                }).attr("stroke", function(d){return d.target.color || 'grey';})
                 .attr("x1", function(d) { return d.source.x; })
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
@@ -502,16 +515,18 @@ var graphPlugins = {
             //Render nodes
             gnodes = gnodes.data(force.nodes()).enter().append('g').attr("class","node").each(function(d) {
                 // this is their initial position, very important
-                d.x = Math.random() * config.w;
-                d.y = Math.random() * config.h;
-            }).attr("transform",function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+                //d.x = Math.random() * config.w;
+                //d.y = Math.random() * config.h;
+                d.x = 0;
+                d.y = 0;
+            }).attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
             
             gnodes.selectAll('circle').remove();
             
             var circle = gnodes.append('circle').attr("class", "bubble");
             circle.attr("fill",function(d){ return d.color; })
                 .attr('r',0).attr("stroke-width", 2)
-                .transition().duration(500).attr("r",function(d) {
+                .transition().duration(500).attr("r", function(d) {
                     d.r = rScale(d.rating);
                     return d.r * d.zoom; 
                 });
@@ -529,7 +544,6 @@ var graphPlugins = {
 //                window.setTimeout(function(){
 //                    if($("div.d3-tip").text().indexOf(d.name)>-1) tip.hide(d);
 //                },3000);
-
             }).on("click",function(d) {
                 if(activeNode && activeNode.id !== d.id)
                     edgeHighlight(activeNode, false);
@@ -551,10 +565,10 @@ var graphPlugins = {
                     .style("stroke-width","0.3")
                     .attr("x",function(){ return -this.getBBox().width/2; })
                     .attr("y",function(d){ return -rScale(d.rating); })
-                    .style("pointer-events","none");
+                    .style("pointer-events", "none");
             
             $('body').click(function(e) {
-                if(e.target.tagName!=='circle') {
+                if(e.target.tagName !== 'circle') {
                     activeNode = null;
                     edgeHighlight(null, false);
                 }
@@ -595,7 +609,7 @@ var graphPlugins = {
             $.fancybox.hideLoading();
             if(err) return $.fancybox("<p>Failed to load data.</p>");
             
-            data.forEach(function(d,i) {
+            data.forEach(function(d, i) {
                 d.type = 'movie';
                 d.starNodes = {};
                 d.characterNodes = {};
