@@ -100,6 +100,7 @@ var graphPlugins = {
         };
         
         var rScale = d3.scale.sqrt().range([config.rmin, config.rmax]);
+        
         var url = div.attr("data-url");
         svg = div.select('svg');
         svg.attr("width", config.w);
@@ -148,56 +149,6 @@ var graphPlugins = {
             .on("drag", dragged)
             .on("dragend", dragended);
         */
-        
-        var tip = {
-            getHtml: function (d) {
-                var html = "<div class='tipcontent' style='color:" + d.color + "'>";
-                if (!d.tooltip || !d.tooltip.length) {
-                    return html + "<h4>" + d.name + (d.year ? ", " + d.year : "") + "</h4></div>";
-                }
-                for (var i = 0; i < d.tooltip.length; i++) {
-                    var text = d.tooltip[i].url ? "<a href='" + d.tooltip[i].url + "' target='_blank'>" + d[d.tooltip[i].key] + "</a>" : d[d.tooltip[i].key];
-                    if(d.tooltip[i].key==='name' || d.tooltip[i].key==='displayname') html += "<h4>" + text + "</h4>";
-                    else if(d.tooltip[i].label)
-                        html += "<span> " + d.tooltip[i].label + ":</span> " + text; 
-                }
-                html += "<div class='omdbinfo'><div class='ajaxloader'></span></div></div>";
-                html += "</div>";
-                return html;
-            },
-            show: function (d) {
-                $("div#infohover").html(tip.getHtml(d,"Hovered")).show();
-            },
-            hide: function () {
-                $("div#infohover").hide();
-            },
-            showActive: function () {
-                filter.setActiveStroke();
-                if(activeNode){
-                    $("div#infoactive").html(tip.getHtml(activeNode,"Active")).show();
-                    if(activeNode.type==='movie'){
-                        $("div#infoactive").find(".omdbinfo .ajaxloader").fadeIn("fast");
-                        $.ajax({
-                            url : imdbApiUrl(activeNode),
-                            jsonp : true,
-                            before: function(){
-                                $("div#infoactive").find(".omdbinfo .ajaxloader").fadeIn("fast");
-                            },
-                            complete: function(){
-                                $("div#infoactive").find(".omdbinfo .ajaxloader").fadeOut("fast");
-                            },
-                            success: function(data){
-                                if(data.Poster && data.Plot){
-                                    var html = "<a href='" + activeNode.url + "' target='_blank'><img src = '" + movieImgUrl(activeNode) + "' width='100%' height='200px' style='min-height:200px' /></a><p>" + data.Plot + "</p>";
-                                    $("div#infoactive").find(".omdbinfo").html(html);
-                                }
-                            }
-                        });
-                    }
-                }
-                else $("div#infoactive").hide();
-            }
-        };
         
         nodes = {
             keys: [],
@@ -254,84 +205,6 @@ var graphPlugins = {
                 return null;
             },
             getAll: function(){ return this.list;}
-        };
-        
-        var filter = {
-            disableAll: function() {
-                gedges.each(function(d){ d.active = 0; });
-                gnodes.each(function(d){ d.active = 0; });
-            },
-            enableAll: function() {
-                gedges.each(function(d){ d.active = 1; });
-                gnodes.each(function(d){ 
-                    d.active = 1; 
-                    d.zoom = 1;
-                });
-            },
-            enableConnected: function(id, type) {
-                gedges.each(function(d) {
-                    if(!d.active) {
-                        if(d.source.id === id && (type === "" || d.target.type === type)) {
-                            d.target.active = 1;
-                            d.active = 1;
-                        } else if(d.target.id === id && (type === "" || d.source.type === type)) {
-                            d.source.active = 1;
-                            d.active = 1;
-                        }
-                    }
-                });
-            },
-            enableType: function(type) {
-                gedges.each(function(d) {
-                    if(!d.active) {
-                        /*
-                        if(d.target.type === type) {
-                            d.target.active = 1;
-                            d.active = 1;
-                        } else if(d.source.type === type) {
-                            d.source.active = 1;
-                            d.active = 1;
-                        }*/
-                        if((d.target.type === type && d.source.type === type) ||
-                          (d.source.type === 'movie' && d.target.type === type)) {
-                            d.target.active = 1;
-                            d.source.active = 1;
-                            d.active = 1;
-                        }
-                    }
-                });
-            },
-            setOpacity: function() {
-                gnodes.transition().duration(400).style('opacity',function(d){ return d.active ? d.hover || d.active : d.active; });
-                gedges.transition().duration(400).style('opacity',function(d){ return d.active ? d.hover || d.active : d.active; });
-            },
-            setActiveStroke: function() {
-                gnodes.style('stroke',function(d){
-                    return activeNode && activeNode.id === d.id ? config.colors.active : '';
-                }).style("stroke-width",function(d){
-                    return activeNode && activeNode.id === d.id ? '3px' : '0px';
-                });
-            },
-            layout: function(zoom) {
-                //config.zoom = arguments.length ? zoom || 1 : config.zoom;
-                
-                /*
-                if(activeNode)
-                    container.attr("transform", "translate("+(-activeNode.x*config.zoom)+","+(-activeNode.y*config.zoom)+")scale(" + config.zoom + ")");
-                else
-                    container.attr("transform", "translate(0,0)scale(" + config.zoom + ")");
-                */
-                gnodes.style('stroke',function(d){ return activeNode && d.id === activeNode.id ? config.colors.active : '' ;})
-                      .style("stroke-width",function(d){ return activeNode && d.id === activeNode.id ? '3px' : '0x' ;});
-                gnodes.selectAll("circle.bubble").transition().duration(500)
-                    .attr("r", function(d) {
-                        d.r = rScale(d.rating + 0.001);
-                        return d.r * d.zoom * d.active; 
-                    });
-                filter.setOpacity();
-
-                startForce(0.1);
-            }
         };
         
         var tick = function(e) {
@@ -410,7 +283,7 @@ var graphPlugins = {
                 }
             }
             fc.active = 1;
-            filter.layout(3);
+            filter.layout(3, activeNode, rScale);
         };
         
         var updateMovie = function() {
@@ -443,12 +316,12 @@ var graphPlugins = {
             e.preventDefault();
             filter.enableAll();
             activeNode = null;
-            tip.showActive();
+            tip.showActive(activeNode);
             config.zoom = 1;
             $("input#movie").val("");
             //$("#connectionselect").fadeOut('fast');
             $("input#check[name='link']").prop('checked',true);
-            filter.layout(1);
+            filter.layout(1, activeNode, rScale);
         });
         
         $("body").keyup(function(e) {
@@ -458,7 +331,7 @@ var graphPlugins = {
                     activeNode = null;
                     edgeHighlight(activeNode,false);
                 }
-                tip.showActive();
+                tip.showActive(activeNode);
             }
         });
         
@@ -493,7 +366,7 @@ var graphPlugins = {
                     de.source.hover = 0;
                     de.target.hover = 0;
                 });
-                filter.setActiveStroke();
+                filter.setActiveStroke(activeNode, config.colors.active);
             }
             filter.setOpacity();
         };
@@ -525,7 +398,7 @@ var graphPlugins = {
             
             var circle = gnodes.append('circle').attr("class", "bubble");
             circle.attr("fill",function(d){ return d.color; })
-                .attr('r',0).attr("stroke-width", 2)
+                .attr('r', 0).attr("stroke-width", 2)
                 .transition().duration(500).attr("r", function(d) {
                     d.r = rScale(d.rating);
                     return d.r * d.zoom; 
@@ -550,21 +423,21 @@ var graphPlugins = {
                 activeNode = d;
                 edgeHighlight(d, true);
                 tip.hide();
-                tip.showActive();
+                tip.showActive(activeNode);
             }).on("dblclick",function(d) {
                 var type = $("input[name='link']:checked").val();
                 activeNode = d;
                 edgeHighlight(d, true);
                 filter.enableConnected(d.id, type);
-                filter.layout();
+                filter.layout(activeNode, rScale);
             });
             
             //Render Text
             gnodes.append("text").text(function(d){return d.name.length > 12 ? (d.name.substr(0,10) + "..") : d.name;})
-                    .style("opacity",0).style("font-size",'10px')
-                    .style("stroke-width","0.3")
-                    .attr("x",function(){ return -this.getBBox().width/2; })
-                    .attr("y",function(d){ return -rScale(d.rating); })
+                    .style("opacity", 0).style("font-size", '10px')
+                    .style("stroke-width", "0.3")
+                    .attr("x", function(){ return -this.getBBox().width/2; })
+                    .attr("y", function(d){ return -rScale(d.rating); })
                     .style("pointer-events", "none");
             
             $('body').click(function(e) {
@@ -572,7 +445,7 @@ var graphPlugins = {
                     activeNode = null;
                     edgeHighlight(null, false);
                 }
-                tip.showActive();
+                tip.showActive(activeNode);
             });
             
             // new function call to listen to filters immediately
@@ -587,134 +460,11 @@ var graphPlugins = {
             startForce(0.1);
         };
         
-        function applyFilters() {
-            filter.disableAll();
-            
-            var type = $("input[name='link']:checked").val();
-            
-            // all by type!
-            filter.enableType(type);
-            
-            // always enable movies (if we haven't already)!
-            if(type !== 'movie') {
-                filter.enableType('movie');
-            }
-            
-            filter.layout(3);
-        }
-        
-        //Load Data
-        $.fancybox.showLoading();
-        d3.json(url,function(err,data){
-            $.fancybox.hideLoading();
-            if(err) return $.fancybox("<p>Failed to load data.</p>");
-            
-            data.forEach(function(d, i) {
-                d.type = 'movie';
-                d.starNodes = {};
-                d.characterNodes = {};
-                d.displayname = d.name + (d.year ? ', ' + d.year : "");
-                d.rating = d.rating && parseFloat(d.rating) ? parseFloat(d.rating) : 0 ;
-                d.color = config.colors.movie;
-                d.y = 0; d.x = 0;
-                d.tooltip = [
-                    { key: "displayname", url : d.url || "" },
-                    { key: "rating", label: "Rating" }
-                ];
-                nodes.add(d);
-
-                if(d.director && d.director.name) {
-                    d.director.type = 'director';
-                    d.director.rating = 0;
-                    d.director.films = 0;
-                    d.director.color = config.colors.director;
-                    d.director.tooltip = [
-                        {key: 'name' },
-                        {key: "rating", label: "Average Rating"}
-                    ];
-                    nodes.add(d.director);
-                    edges.add(nodes.get(d.id), nodes.get(d.director.id));
-                    d.director.rating = (d.director.rating*d.director.films+d.rating)/(d.director.films+1).toFixed(1);
-                    d.director.films++;
-                }
-                d.stars.forEach(function(s){
-                    s.type = 'star';
-                    s.rating = 0;
-                    s.color = config.colors.star;
-                    s.films = 0;
-                    s.tooltip = [
-                        {key: 'name' },
-                        {key: "rating", label: "Average Rating"}
-                    ];
-                    nodes.add(s);
-                    edges.add(nodes.get(d.id), nodes.get(s.id));
-                    d.starNodes[s.id] = s;
-                    d.starNodes[s.id].rating = (d.starNodes[s.id].rating * d.starNodes[s.id].films + d.rating)/(d.starNodes[s.id].films+1).toFixed(1);
-                    d.starNodes[s.id].films++;
-                });
-                d.characters.forEach(function(character){
-                    character.type = 'character';
-                    character.rating = 0;
-                    character.color = config.colors.character;
-                    character.films = 0;
-                    character.tooltip = [
-                        {key: 'name' },
-                        {key: "films", label: "Found in movies"}
-                    ];
-                    nodes.add(character);
-                    edges.add(nodes.get(d.id),nodes.get(character.id));
-                    d.characterNodes[character.id] = nodes.get(character.id);
-                    d.characterNodes[character.id].rating = (d.characterNodes[character.id].rating * d.characterNodes[character.id].films + d.rating)/(d.characterNodes[character.id].films+1).toFixed(1);
-                    d.characterNodes[character.id].films++;
-                });
-            });
-            
-            // what is this doing?
-            // adding the edges to represents links between movies based on overlapping actors/characters/director?
-            data.forEach(function(d,i) {
-                if(!d.id) return console.error("missing id for movie", d.name);
-                for(var j = i + 1; j < data.length; j++) {
-                    if(!data[j].id) {
-                        console.error("missing id for movie", data[j].name);
-                        continue;
-                    }
-                    var w = 0;
-                    if(d.director.id === data[j].director.id) w++;
-                    d.stars.forEach(function(s1) {
-                        data[j].stars.forEach(function(s2) {
-                            if(s1.id === s2.id) w++;
-                        });
-                    });
-                    d.characters.forEach(function(c1) {
-                        data[j].characters.forEach(function(c2) {
-                            if(c1.id === c2.id) w++;
-                        });
-                    });
-                    if (w) {
-                        edges.add(d, data[j]);
-                    }
-                }
-            });
-            
-            var min = d3.min(nodes.getAll(),function(d){ return d.rating;})*config.minrating,
-                max = d3.max(nodes.getAll(),function(d){ return d.rating;})*3;
-                rScale.domain([min, max]);
-            
-            force.nodes(nodes.getAll())
-                 .links(edges.getAll())
-            // Not needed! We set all the props earlier!
-            /*
-                .linkStrength(config.linkStrength)
-                .friction(config.friction)
-                .gravity(config.gravity)
-                .theta(0.8);
-            */
-            
-            refreshGraph();
-        });
+        // Load Data
+        loadMovieData(url, config, rScale, refreshGraph);
         
         // hook up search box population
-        addSuggester("input#movie",function(term) {
+        addSuggester("input#movie", function(term) {
             var res = [];
             nodes.getAll().forEach(function(n) {
                 if(n.type==='movie' && n.name.toLowerCase().indexOf(term.toLowerCase())>-1) res.push(n.name + (n.year ? ", " + n.year : ""));
