@@ -90,7 +90,7 @@ var graphPlugins = {
             w: $div.width(), h: $div.height(), minrating: 0.01,
             //charge: -50,
             //chargeDistance: 200,
-            //linkDistance: 10, 
+            linkDistance: 60, 
             //linkStrength: 0.1,
             //friction: 0.9, 
             //gravity: 0.25,
@@ -186,25 +186,27 @@ var graphPlugins = {
                 return s.id + ":" + d.id;
             },
             exists: function(s, d) {
-                return this.keys.indexOf(this.makeKey(s,d)) > -1;
+                return this.keys.indexOf(this.makeKey(s, d)) > -1;
             },
             add: function(s, d) {
-                if(!this.exists(s,d)) {
-                    var e = this.makeKey(s,d);
+                if(!this.exists(s, d)) {
+                    var e = this.makeKey(s, d);
                     this.keys.push(e);
                     this.list.push({
                         source: s, target: d, id: e, active: 1, hover: 0
                     });
                 }
             },
-            get: function(s,d){
-                var key = this.makeKey(s,d);
+            get: function(s,d) {
+                var key = this.makeKey(s, d);
                 for(var i = 0; i < this.list.length; i++){
                     if(key === this.list[i].id) return this.list[i];
                 }
                 return null;
             },
-            getAll: function(){ return this.list;}
+            getAll: function() { 
+                return this.list;
+            }
         };
         
         var tick = function(e) {
@@ -246,11 +248,14 @@ var graphPlugins = {
         force = d3.layout.force()
             .size([config.w, config.h])
             //.linkStrength(config.linkStrength)
-            //.linkDistance(config.linkDistance)
+            .linkDistance(config.linkDistance)
             //.charge(config.charge)
+            .charge(-60)
             //.chargeDistance(config.chargeDistance)
             //.friction(config.friction)
+            .friction(0.7)
             //.gravity(config.gravity)
+            .gravity(0.4)
             .on("tick", tick)
             //.on("end", tick); //why?
 
@@ -294,9 +299,9 @@ var graphPlugins = {
             }
         };
         
-        var changeFilters = function() {
-            applyFilters();
-        }
+        //var changeFilters = function() {
+        //    applyFilters();
+        //}
         
         //Page Events
         $("input#movie").keyup(function(e) {
@@ -310,7 +315,7 @@ var graphPlugins = {
             }
         });
         
-        $("input[name='link']").change(changeFilters);//(updateMovie);
+        $("input[name='link']").change(applyFilters);//(updateMovie);
         
         $("a#clear").click(function(e){
             e.preventDefault();
@@ -377,7 +382,7 @@ var graphPlugins = {
             //Render edges
             gedges = gedges.data(force.links()).enter().append('line')
                 .attr("class", "edge")
-                .style("stroke-width", 1).attr("fill",function(d){
+                .style("stroke-width", 1).attr("fill", function(d) {
                     return d.target.color;
                 }).attr("stroke", function(d){return d.target.color || 'grey';})
                 .attr("x1", function(d) { return d.source.x; })

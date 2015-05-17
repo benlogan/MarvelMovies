@@ -91,9 +91,10 @@ function loadMovieData(url, config, rScale, refreshGraph) {
                 }
             });
             
+            // what is this doing?
             var min = d3.min(nodes.getAll(), function(d){ return d.rating;}) * config.minrating,
                 max = d3.max(nodes.getAll(), function(d){ return d.rating;}) * 3;
-                rScale.domain([min, max]);
+            rScale.domain([min, max]);
             
             force.nodes(nodes.getAll())
                  .links(edges.getAll())

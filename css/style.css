@@ -9,16 +9,26 @@ body {
 }
 
 div#grapharea {
-    box-shadow: 0px 0px 2px #ccc;border : 1px solid #ddd;
+    box-shadow: 0px 0px 2px #ccc;
+    border : 1px solid #ddd;
 }
 
 input[type=radio] {
-    visibility: hidden;padding: 4px;
+    visibility: hidden;
+    padding: 4px;
 }
 
 /* http://www.colourlovers.com/palette/3729999/The_light_was_here.. */
 
+/*
+ what is the correct way of inheriting the selection state colour and not having to duplicate it here?
+*/
+
 #button1 {
+    background: #13364B;
+}
+
+#button1 label:after {
     background: #13364B;
 }
 
@@ -26,7 +36,15 @@ input[type=radio] {
     background: #1D9880;
 }
 
+#button2 label:after {
+    background: #1D9880;
+}
+
 #button3 {
+    background: #D5F271;
+}
+
+#button3 label:after {
     background: #D5F271;
 }
 
@@ -34,15 +52,26 @@ input[type=radio] {
     background: #FC8236;
 }
 
+#button4 label:after {
+    background: #FC8236;
+}
+
 #button5 {
     background: #A01852;
 }
 
+#button5 label:after {
+    background: #A01852;
+}
+
 .roundedOne {
-	width: 28px;height: 28px;
-	margin: 2px; border-radius: 50px;
+	width: 28px;
+    height: 28px;
+	margin: 2px; 
+    border-radius: 50px;
 	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
-	position: relative;display: inline-block;
+	position: relative;
+    display: inline-block;
 }
 
 .roundedOne label {
@@ -60,7 +89,7 @@ input[type=radio] {
 	position: absolute;
 	width: 16px;
 	height: 16px;
-	background: black;
+	/*background: inherit;*/
 	border-radius: 50px;
 	top: 2px;
 	left: 2px;

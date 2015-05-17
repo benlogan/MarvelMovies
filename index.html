@@ -37,6 +37,9 @@
                     trueRestart();
                 }
             }
+            function changeForce(charge, gravity) {
+                force.charge(charge).gravity(gravity);
+            }
         </script>
     </head>
     <body>
@@ -82,18 +85,25 @@
                     </div>
                     <a href="#" class="btn btn-primary" id="clear">Clear</a>
                 </form>
-                <!--
+                
                 <div id="controlbox">
                     <button onclick="resumeForce()">Resume Force</button>
                     <button onclick="restartForce()">Restart Force</button>
+                    <button onclick="changeForce(0, 0)">No Force</button>
+                    <button onclick="changeForce(-60, 0)">Mutual Repulsion</button>
+                    <button onclick="changeForce(60, 0)">Mutual Attraction</button>
+                    <button onclick="changeForce(0, 0.02)">Gravity</button>
+                    <button onclick="changeForce(-30, 0.1)">Gravity with Repulsion</button>
                 </div>
-                -->
+                
                 <div id="grapharea" data-url="./data/movielist.json" class="col-lg-12" style="min-height: 500px;margin-top: 20px;">
                     <svg></svg>
+                    <!--
                     <div style="position:absolute;bottom: 2px;right: 2px;z-index: 100;">
                         <a href="#" class="btn btn-sm glyphicon glyphicon-lens"></a>
                         <a href="#" class="btn btn-sm glyphicon glyphicon-hand"></a>
                     </div>
+                    -->
                 </div>
             </div>
             <div class="col-lg-2 col-md-2 col-sm-2" style="margin-top: 70px;">
