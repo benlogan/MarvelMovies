@@ -24,7 +24,7 @@ function loadMovieData(url, config, rScale, refreshGraph) {
                     d.director.films = 0;
                     d.director.color = config.colors.director;
                     d.director.tooltip = [
-                        {key: 'name' },
+                        {key: 'name', url: d.director.url},
                         {key: "rating", label: "Average Rating"}
                     ];
                     nodes.add(d.director);
@@ -38,7 +38,7 @@ function loadMovieData(url, config, rScale, refreshGraph) {
                     s.color = config.colors.star;
                     s.films = 0;
                     s.tooltip = [
-                        {key: 'name' },
+                        {key: 'name', url: s.url },
                         {key: "rating", label: "Average Rating"}
                     ];
                     nodes.add(s);
@@ -53,7 +53,7 @@ function loadMovieData(url, config, rScale, refreshGraph) {
                     character.color = config.colors.character;
                     character.films = 0;
                     character.tooltip = [
-                        {key: 'name' },
+                        {key: 'name' , url: character.url},
                         {key: "films", label: "Found in movies"}
                     ];
                     nodes.add(character);
