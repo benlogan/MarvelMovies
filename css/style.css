@@ -28,15 +28,7 @@ input[type=radio] {
     background: #13364B;
 }
 
-#button1 label:after {
-    background: #13364B;
-}
-
 #button2 {
-    background: #1D9880;
-}
-
-#button2 label:after {
     background: #1D9880;
 }
 
@@ -44,15 +36,7 @@ input[type=radio] {
     background: #D5F271;
 }
 
-#button3 label:after {
-    background: #D5F271;
-}
-
 #button4 {
-    background: #FC8236;
-}
-
-#button4 label:after {
     background: #FC8236;
 }
 
@@ -60,9 +44,6 @@ input[type=radio] {
     background: #A01852;
 }
 
-#button5 label:after {
-    background: #A01852;
-}
 
 .roundedOne {
 	width: 28px;
@@ -77,11 +58,9 @@ input[type=radio] {
 .roundedOne label {
     cursor: pointer; position: absolute; width: 20px; height: 20px;
     border-radius: 50px; left: 4px; top: 4px;
+    border: 10px solid white;
     box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
-    opacity: 0.4; background: white;
-}
-.roundedOne label:hover {
-    opacity: 0.7;
+    opacity: 0.4; background: inherit;
 }
 .roundedOne label:after {
 	opacity: 0;
@@ -89,13 +68,14 @@ input[type=radio] {
 	position: absolute;
 	width: 16px;
 	height: 16px;
-	/*background: inherit;*/
+	background: inherit;
 	border-radius: 50px;
-	top: 2px;
-	left: 2px;
+	top: -2px;
+	left: -2px;
 	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
 }
 
-.roundedOne label:hover::after { opacity: 0.7; }
-.roundedOne input[type=radio]:checked + label { opacity: 1; }
+.roundedOne label:hover { opacity: 0.4;  border: 4px solid white;}
+.roundedOne label:hover::after { opacity: 0.4; top: -2px;left: -2px;}
+.roundedOne input[type=radio]:checked + label { opacity: 1; border: 4px solid white;}
 .roundedOne input[type=radio]:checked + label:after { opacity: 1; }
