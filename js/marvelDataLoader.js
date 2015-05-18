@@ -1,5 +1,4 @@
 function loadMovieData(url, config, rScale, refreshGraph) {        
-//$.fancybox.showLoading(); // I don't think this is working or doing anything?
         d3.json(url, function(err, data) {
             $.fancybox.hideLoading();
             if(err) return $.fancybox("<p>Failed to load data.</p>");
@@ -65,7 +64,8 @@ function loadMovieData(url, config, rScale, refreshGraph) {
             });
             
             // what is this doing?
-            // adding the edges to represents links between movies based on overlapping actors/characters/director?
+            // adding the edges to represents links between movies based on overlapping actors/characters/director? : exactly.
+            // We add only those movie edges that have some weight. 'w' here can be used as edge weight too.
             data.forEach(function(d, i) {
                 if(!d.id) return console.error("missing id for movie", d.name);
                 for(var j = i + 1; j < data.length; j++) {
@@ -91,20 +91,15 @@ function loadMovieData(url, config, rScale, refreshGraph) {
                 }
             });
             
-            // what is this doing?
+            // what is this doing? - Calculates domain for the scale that maps node rating to node circle size.
+            // the config.minrating is used so that domain's min value is not zero. 0 causes division by 0 error later on.
+            // * 3 is used because we want to have more larger range than domain to distinguish nodes on screen.
             var min = d3.min(nodes.getAll(), function(d){ return d.rating;}) * config.minrating,
                 max = d3.max(nodes.getAll(), function(d){ return d.rating;}) * 3;
             rScale.domain([min, max]);
             
             force.nodes(nodes.getAll())
                  .links(edges.getAll())
-            // Not needed! We set all the props earlier!
-            /*
-                .linkStrength(config.linkStrength)
-                .friction(config.friction)
-                .gravity(config.gravity)
-                .theta(0.8);
-            */
             
             refreshGraph();
         });

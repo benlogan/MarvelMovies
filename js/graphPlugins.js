@@ -210,9 +210,12 @@ var graphPlugins = {
         };
         
         var tick = function(e) {
-            //if(force.alpha() < 0.025) force.alpha(0); //why?
+            //if(force.alpha() < 0.025) force.alpha(0); //why? - Required to stop nodes from moving till forever..
+            //after a threshold is reached force layout must be stopped to save browser memory.
             
             // why do we need a transform/translate here - why can't we just use the current x/y?
+            // transform is needed because nodes are not circles but a group('g') that has circles and labels.
+            // Group is transformed, circle and label are placed relative to their group.
             //gnodes.attr("cx", function(d) { return d.x; }).attr("cy", function(d) { return d.y; });
             gnodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
             
@@ -226,6 +229,8 @@ var graphPlugins = {
         };
         
         /*
+         * this was having a zoom effect on force layout by associating linkStrength and linkDistance
+         * to zoom.
         .linkStrength(
             //function(d) {
             //    return config.linkStrength/d.zoom/config.zoom;
@@ -257,7 +262,7 @@ var graphPlugins = {
             //.gravity(config.gravity)
             .gravity(0.4)
             .on("tick", tick)
-            //.on("end", tick); //why?
+            //.on("end", tick); //why? - to have our nodes at the final best positions calculated by force layout.
 
         var drag = force.drag().on("dragstart", dragstarted);
         
@@ -349,6 +354,8 @@ var graphPlugins = {
             gnodes.selectAll("text").style("opacity", config.showlabel ? 1 : 0);
             
             // why do this, I don't think they really need rearranging and its not behaving correctly
+            // this was used to rearrange nodes if their positions have corrupted after some usage. Generally
+            // showing labels might be followed by zoom/drag.
             //force.alpha(0.1).start();
         }
         
@@ -459,6 +466,7 @@ var graphPlugins = {
             showHideLabels();
             
             // what is this doing? it's critical for drag anyway!
+            // Adds d3 drag event handler to nodes.
             //gnodes.call(force.drag);
             gnodes.call(drag);
             

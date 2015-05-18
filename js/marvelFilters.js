@@ -58,6 +58,8 @@ var filter = {
                 //config.zoom = arguments.length ? zoom || 1 : config.zoom;
                 
                 /*
+                 * this was needed to zoom nodes to make better use of space when a movie node is selected.
+                 * After zoom, container is moved to bring the selected node to center.
                 if(activeNode)
                     container.attr("transform", "translate("+(-activeNode.x*config.zoom)+","+(-activeNode.y*config.zoom)+")scale(" + config.zoom + ")");
                 else
@@ -68,6 +70,8 @@ var filter = {
                 gnodes.selectAll("circle.bubble").transition().duration(500)
                     .attr("r", function(d) {
                         d.r;// = rScale(d.rating + 0.001); // what are we trying to do here, it's not a function!
+                        // rScale is a function. It maps node's rating to node's radius.
+                        // Node radius is not fixed. It depends on node zoom( we can set individual node to zoom) and whether node is selected.
                         return d.r * d.zoom * d.active; 
                     });
                 filter.setOpacity();
