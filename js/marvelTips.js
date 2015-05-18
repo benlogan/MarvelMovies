@@ -32,14 +32,23 @@
                             before: function(){
                                 $("div#infoactive").find(".omdbinfo .ajaxloader").fadeIn("fast");
                             },
-                            complete: function(){
-                                $("div#infoactive").find(".omdbinfo .ajaxloader").fadeOut("fast");
-                            },
                             success: function(data){
                                 if(data.Poster && data.Plot){
-                                    var html = "<a href='" + activeNode.url + "' target='_blank'><img src = '" + movieImgUrl(activeNode) + "' width='100%' height='200px' style='min-height:200px' /></a><p>" + data.Plot + "</p>";
-                                    $("div#infoactive").find(".omdbinfo").html(html);
-                                }
+                                    $.ajax({
+                                        type: 'HEAD',url : movieImgUrl(activeNode),
+                                        error: function(){
+                                            var html = "<a href='" + activeNode.url + "' target='_blank'><p>" + data.Plot + "</p></a>";
+                                            $("div#infoactive").find(".omdbinfo").html(html);
+                                        },
+                                        complete: function(){
+                                            $("div#infoactive").find(".omdbinfo .ajaxloader").fadeOut("fast");
+                                        },
+                                        success: function(){
+                                            var html = "<a href='" + activeNode.url + "' target='_blank'><img src = '" + movieImgUrl(activeNode) + "' width='100%' height='200px' style='min-height:200px' /></a><p>" + data.Plot + "</p>";
+                                            $("div#infoactive").find(".omdbinfo").html(html);
+                                        }
+                                    });
+                                }else $("div#infoactive").find(".omdbinfo .ajaxloader").fadeOut("fast");
                             }
                         });
                     }
