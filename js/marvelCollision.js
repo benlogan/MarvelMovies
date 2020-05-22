@@ -1,5 +1,5 @@
 var padding = 1, // separation between circles
-    radius=16; // was originally 8, but that seems far too small
+    radius=4; // was originally 8, but that seems far too small
 function collide(alpha, nodes) {
   var quadtree = d3.geom.quadtree(nodes);
   return function(d) {

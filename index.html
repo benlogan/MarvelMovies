@@ -68,7 +68,7 @@
                         </div>
                         <div id="button3" class="roundedOne">
                             <input type="radio" value="star" id="starcheck" name="link"/>
-                            <label for="starcheck" title="Stars"></label>
+                            <label for="starcheck" title="Actors"></label>
                         </div>
                         <div id="button4" class="roundedOne">
                             <input type="radio" value="director" id="directorcheck" name="link"/>
@@ -86,6 +86,7 @@
                     <a href="#" class="btn btn-primary" id="clear">Clear</a>
                 </form>
                 
+                <!--
                 <div id="controlbox">
                     <button onclick="resumeForce()">Resume Force</button>
                     <button onclick="restartForce()">Restart Force</button>
@@ -95,6 +96,7 @@
                     <button onclick="changeForce(0, 0.02)">Gravity</button>
                     <button onclick="changeForce(-30, 0.1)">Gravity with Repulsion</button>
                 </div>
+                -->
                 
                 <div id="grapharea" data-url="./data/movielist.json" class="col-lg-12" style="min-height: 500px;margin-top: 20px;">
                     <svg></svg>
@@ -119,6 +121,15 @@
 
             </div>
         </div>
+        <div style="font-size: 12px; text-align: center;">
+            <p>Data Sources</p>
+            <div style="width: 15%; margin: 0 auto;">
+                <ul style="text-align: left;">
+                    <li><a target="_blank" href="http://www.imdb.com/">IMDB</a></li>
+                    <li><a target="_blank" href="http://www.omdbapi.com/">OMDB API</a></li>
+                </ul>
+            </div>
+        </div>    
         <div style="font-size: 12px; text-align: center;">&copy; Ben Logan</div>
     </body>
 </html>

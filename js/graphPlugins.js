@@ -78,12 +78,49 @@ var movieImgUrl = function (node) {
     return "./images/movies/" + node.imdbid + ".JPG";
 };
 
+// you've searched for a movie, change the graph
+function updateMovie(config) {
+    if($("input#movie").val()) {
+        var name = $("input#movie").val(),m = name.match(/, (\d+)/), year = m ? m[1] : '';
+        if(m) name = name.replace(/, \d+/, '');
+
+        //$("#connectionselect").fadeIn('fast');
+        activeNode = nodes.get(name, 'movie', year);
+        var active = $("input[name='link']:checked").val() || "";
+        filter.disableAll();
+        //activeNode.zoom = 2;
+
+        // enable movies
+        filter.enableConnected(activeNode.id, active);
+
+        // enable any other filters
+        if(!active || active === 'star') {
+            for(var s in activeNode.starNodes) {
+                filter.enableConnected(activeNode.starNodes[s].id, 'movie');
+            }
+        }
+        if(!active || active === 'character') {
+            for(var s in activeNode.characterNodes) {
+                filter.enableConnected(activeNode.characterNodes[s].id, 'movie');
+            }
+        }
+        if(!active || active === 'director') {
+            for(var s in activeNode.starNodes) {
+                filter.enableConnected(activeNode.director.id, 'movie');
+            }
+        }
+        activeNode.active = 1;
+        filter.layout(3, activeNode, config);
+    }
+};
+
 var graphPlugins = {
     
     forceGraph : function () {
         var selector = '#grapharea';
         var div = d3.select(selector), $div = $(selector);
         
+        // set the config parameters
         var config = {
             textColor: div.attr("data-textcolor") || 'black',
             rmin: parseInt(div.attr("data-rmin")) || 2, rmax : parseInt(div.attr("data-rmax")) || 10,
@@ -101,6 +138,7 @@ var graphPlugins = {
         
         var rScale = d3.scale.sqrt().range([config.rmin, config.rmax]);
         
+        // create the SVG
         var url = div.attr("data-url");
         svg = div.select('svg');
         svg.attr("width", config.w);
@@ -124,31 +162,8 @@ var graphPlugins = {
         */
         
         function dragstarted(d) {
-            // why? not needed
-            //d3.event.sourceEvent.stopPropagation();
-            
             d3.select(this).classed("fixed", d.fixed = true);
-            //d3.select(this).classed("dragging", true);
-            
-            // why? not needed
-            //startForce();
         }
-        
-        /*
-        function dragged(d) { 
-            d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y); 
-        }
-        
-        function dragended(d) { 
-            d3.select(this).classed("dragging", false); 
-        }
-
-        d3.behavior.drag()
-            .origin(function (d) { return d; })
-            .on("dragstart", dragstarted)
-            .on("drag", dragged)
-            .on("dragend", dragended);
-        */
         
         nodes = {
             keys: [],
@@ -197,7 +212,7 @@ var graphPlugins = {
                     });
                 }
             },
-            get: function(s,d) {
+            get: function(s, d) {
                 var key = this.makeKey(s, d);
                 for(var i = 0; i < this.list.length; i++){
                     if(key === this.list[i].id) return this.list[i];
@@ -210,14 +225,13 @@ var graphPlugins = {
         };
         
         var tick = function(e) {
-            //if(force.alpha() < 0.025) force.alpha(0); //why?
             
             // why do we need a transform/translate here - why can't we just use the current x/y?
             //gnodes.attr("cx", function(d) { return d.x; }).attr("cy", function(d) { return d.y; });
             gnodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
             
             // enable collision detection/prevention
-            //gnodes.each(collide(0.5, nodes.getAll()));
+            gnodes.each(collide(0.5, nodes.getAll()));
             
             gedges.attr("x1", function(d) { return d.source.x; })
                 .attr("y1", function(d) { return d.source.y; })
@@ -257,53 +271,10 @@ var graphPlugins = {
             //.gravity(config.gravity)
             .gravity(0.4)
             .on("tick", tick)
-            //.on("end", tick); //why?
 
         var drag = force.drag().on("dragstart", dragstarted);
         
-        var selectMovie = function(fc) {
-            //$("#connectionselect").fadeIn('fast');
-            activeNode = fc;
-            var active = $("input[name='link']:checked").val() || "";
-            filter.disableAll();
-            //fc.zoom = 2;
-            
-            // enable movies
-            filter.enableConnected(fc.id, active);
-            
-            // enable any other filters
-            if(!active || active === 'star') {
-                for(var s in fc.starNodes) {
-                    filter.enableConnected(fc.starNodes[s].id, 'movie');
-                }
-            }
-            if(!active || active === 'character') {
-                for(var s in fc.characterNodes) {
-                    filter.enableConnected(fc.characterNodes[s].id, 'movie');
-                }
-            }
-            if(!active || active === 'director') {
-                for(var s in fc.starNodes) {
-                    filter.enableConnected(fc.director.id, 'movie');
-                }
-            }
-            fc.active = 1;
-            filter.layout(3, activeNode, rScale);
-        };
-        
-        var updateMovie = function() {
-            if($("input#movie").val()) {
-                var name = $("input#movie").val(),m = name.match(/, (\d+)/), year = m ? m[1] : '';
-                if(m) name = name.replace(/, \d+/, '');
-                selectMovie(nodes.get(name, 'movie', year));
-            }
-        };
-        
-        //var changeFilters = function() {
-        //    applyFilters();
-        //}
-        
-        //Page Events
+        // Page Events
         $("input#movie").keyup(function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -311,7 +282,7 @@ var graphPlugins = {
             var name = $(this).val(),m = name.match(/, (\d+)/), year = m ? m[1] : '';
             if(m) name = name.replace(/, \d+/, '');
             if(code === 13 && nodes.get(name, 'movie', year)) {
-                updateMovie();
+                updateMovie(config);
             }
         });
         
@@ -326,7 +297,7 @@ var graphPlugins = {
             $("input#movie").val("");
             //$("#connectionselect").fadeOut('fast');
             $("input#check[name='link']").prop('checked',true);
-            filter.layout(1, activeNode, rScale);
+            filter.layout(1, activeNode, rScale, config);
         });
         
         $("body").keyup(function(e) {
@@ -377,7 +348,7 @@ var graphPlugins = {
         };
         
         //Creates graph afresh from data available in force
-        var refreshGraph = function() {
+        var buildGraph = function() {
             
             //Render edges
             gedges = gedges.data(force.links()).enter().append('line')
@@ -428,13 +399,13 @@ var graphPlugins = {
                 activeNode = d;
                 edgeHighlight(d, true);
                 tip.hide();
-                tip.showActive(activeNode);
+                tip.showActive(activeNode);/*
             }).on("dblclick",function(d) {
                 var type = $("input[name='link']:checked").val();
                 activeNode = d;
                 edgeHighlight(d, true);
                 filter.enableConnected(d.id, type);
-                filter.layout(activeNode, rScale);
+                filter.layout(activeNode, rScale, config);*/
             });
             
             //Render Text
@@ -444,7 +415,7 @@ var graphPlugins = {
                     .attr("x", function(){ return -this.getBBox().width/2; })
                     .attr("y", function(d){ return -rScale(d.rating); })
                     .style("pointer-events", "none");
-            
+
             $('body').click(function(e) {
                 if(e.target.tagName !== 'circle') {
                     activeNode = null;
@@ -466,7 +437,7 @@ var graphPlugins = {
         };
         
         // Load Data
-        loadMovieData(url, config, rScale, refreshGraph);
+        loadMovieData(url, config, rScale, buildGraph);
         
         // hook up search box population
         addSuggester("input#movie", function(term) {
@@ -475,6 +446,6 @@ var graphPlugins = {
                 if(n.type==='movie' && n.name.toLowerCase().indexOf(term.toLowerCase())>-1) res.push(n.name + (n.year ? ", " + n.year : ""));
             });
             return res;
-        }, updateMovie);
+        }, updateMovie(config)); //not working
     }
 };

@@ -1,4 +1,4 @@
-function loadMovieData(url, config, rScale, refreshGraph) {        
+function loadMovieData(url, config, rScale, buildGraph) {        
 //$.fancybox.showLoading(); // I don't think this is working or doing anything?
         d3.json(url, function(err, data) {
             $.fancybox.hideLoading();
@@ -105,7 +105,46 @@ function loadMovieData(url, config, rScale, refreshGraph) {
                 .gravity(config.gravity)
                 .theta(0.8);
             */
-            
-            refreshGraph();
+            buildGraph();
         });
+    return true;
+}
+
+function loadMovieDataNew(url, config, rScale, refreshGraph) {        
+//$.fancybox.showLoading(); // I don't think this is working or doing anything?
+        d3.json(url, function(root) {
+            
+            nodes = flatten(root);
+            
+            edges = d3.layout.tree().links(nodes);
+            
+            // what is this doing?
+            /*
+            var min = d3.min(nodes.getAll(), function(d){ return d.rating;}) * config.minrating,
+                max = d3.max(nodes.getAll(), function(d){ return d.rating;}) * 3;
+            rScale.domain([min, max]);
+            */
+            
+            force.nodes(nodes)
+                 .links(edges)
+                .start();
+            
+            //refreshGraph();
+        });
+}
+
+function flatten(root) {
+var nodes = [];
+      function traverse(node, depth) {
+        if (node.children) {
+          node.children.forEach(function(child) {
+            child.parent = node;
+            traverse(child, depth + 1);
+          });
+        }
+        node.depth = depth;
+        nodes.push(node);
+      }
+      traverse(root, 1);
+      return nodes;
 }

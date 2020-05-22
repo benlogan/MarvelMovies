@@ -54,7 +54,7 @@ var filter = {
                     return activeNode && activeNode.id === d.id ? '3px' : '0px';
                 });
             },
-            layout: function(zoom, activeNode, rScale) {
+            layout: function(zoom, activeNode, rScale, config) {
                 //config.zoom = arguments.length ? zoom || 1 : config.zoom;
                 
                 /*
