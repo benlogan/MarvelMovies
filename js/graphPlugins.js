@@ -22,11 +22,11 @@ String.prototype.short = function (len) {
 $(document).ready(function () {
 
     graphPlugins.forceGraph();
-    
+
     $("form#graphfilter").submit(function (e) {
         e.preventDefault();
     });
-    
+
     $("[title]").qtip({
         position: {
             my: "bottom center", at: 'bottom center', target : "mouse"
@@ -58,7 +58,7 @@ http://stackoverflow.com/questions/21338135/d3js-force-layout-destroy-and-reset
 **/
 function trueRestart() {
     //svg.remove();
-    
+
     gnodes.remove();
     gedges.remove();
 
@@ -66,7 +66,7 @@ function trueRestart() {
     links = [];
     //force.nodes(nodes);
     //force.links(links);
-    
+
     graphPlugins.forceGraph();
 }
 
@@ -115,11 +115,11 @@ function updateMovie(config) {
 };
 
 var graphPlugins = {
-    
+
     forceGraph : function () {
         var selector = '#grapharea';
         var div = d3.select(selector), $div = $(selector);
-        
+
         // set the config parameters
         var config = {
             textColor: div.attr("data-textcolor") || 'black',
@@ -127,17 +127,17 @@ var graphPlugins = {
             w: $div.width(), h: $div.height(), minrating: 0.01,
             //charge: -50,
             //chargeDistance: 200,
-            linkDistance: 60, 
+            linkDistance: 60,
             //linkStrength: 0.1,
-            //friction: 0.9, 
+            //friction: 0.9,
             //gravity: 0.25,
             zoom: 1.0, //zoomMin: 0.8, zoomMax: 8.0, zoomStep: 0.2,
             colors: { movie: '#1D9880', star: '#D5F271', director: '#FC8236', character: '#A01852', active: 'black', hover: 'silver' },
             showlabel: true
         };
-        
+
         var rScale = d3.scale.sqrt().range([config.rmin, config.rmax]);
-        
+
         // create the SVG
         var url = div.attr("data-url");
         svg = div.select('svg');
@@ -147,7 +147,7 @@ var graphPlugins = {
         gnodes = container.selectAll("g.node");
         gedges = container.selectAll("line.edge");
         var activeNode = null;
-        
+
         /*
         var zoom = d3.behavior.zoom()
             .scaleExtent([config.zoomMin, config.zoomMax])
@@ -157,14 +157,14 @@ var graphPlugins = {
             config.zoom = d3.event.scale;
             container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
         }
-        
+
         svg.attr("transform", "translate(0,0)").call(zoom).on("dblclick.zoom", null);
         */
-        
+
         function dragstarted(d) {
             d3.select(this).classed("fixed", d.fixed = true);
         }
-        
+
         nodes = {
             keys: [],
             list: [],
@@ -193,7 +193,7 @@ var graphPlugins = {
             },
             getAll: function() { return this.list; }
         };
-        
+
         edges = {
             keys: [],
             list: [],
@@ -219,27 +219,33 @@ var graphPlugins = {
                 }
                 return null;
             },
-            getAll: function() { 
+            getAll: function() {
                 return this.list;
             }
         };
-        
+
         var tick = function(e) {
-            
+            //if(force.alpha() < 0.025) force.alpha(0); //why? - Required to stop nodes from moving till forever..
+            //after a threshold is reached force layout must be stopped to save browser memory.
+
             // why do we need a transform/translate here - why can't we just use the current x/y?
+            // transform is needed because nodes are not circles but a group('g') that has circles and labels.
+            // Group is transformed, circle and label are placed relative to their group.
             //gnodes.attr("cx", function(d) { return d.x; }).attr("cy", function(d) { return d.y; });
             gnodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-            
+
             // enable collision detection/prevention
             gnodes.each(collide(0.5, nodes.getAll()));
-            
+
             gedges.attr("x1", function(d) { return d.source.x; })
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
                 .attr("y2", function(d) { return d.target.y; });
         };
-        
+
         /*
+         * this was having a zoom effect on force layout by associating linkStrength and linkDistance
+         * to zoom.
         .linkStrength(
             //function(d) {
             //    return config.linkStrength/d.zoom/config.zoom;
@@ -258,7 +264,7 @@ var graphPlugins = {
             )
             .size([config.w-2*config.rmax,config.h-2*config.rmax])
         */
-        
+
         force = d3.layout.force()
             .size([config.w, config.h])
             //.linkStrength(config.linkStrength)
@@ -271,9 +277,10 @@ var graphPlugins = {
             //.gravity(config.gravity)
             .gravity(0.4)
             .on("tick", tick)
+            //.on("end", tick); //why? - to have our nodes at the final best positions calculated by force layout.
 
         var drag = force.drag().on("dragstart", dragstarted);
-        
+
         // Page Events
         $("input#movie").keyup(function(e) {
             e.preventDefault();
@@ -285,9 +292,9 @@ var graphPlugins = {
                 updateMovie(config);
             }
         });
-        
+
         $("input[name='link']").change(applyFilters);//(updateMovie);
-        
+
         $("a#clear").click(function(e){
             e.preventDefault();
             filter.enableAll();
@@ -299,7 +306,7 @@ var graphPlugins = {
             $("input#check[name='link']").prop('checked',true);
             filter.layout(1, activeNode, rScale, config);
         });
-        
+
         $("body").keyup(function(e) {
             var code = e.keyCode || e.which;
             if(code === 27) {
@@ -310,19 +317,21 @@ var graphPlugins = {
                 tip.showActive(activeNode);
             }
         });
-        
+
         $("input#showlabels").click(function() {
             config.showlabel = !config.showlabel;
             showHideLabels();
         });
-        
+
         function showHideLabels() {
             gnodes.selectAll("text").style("opacity", config.showlabel ? 1 : 0);
-            
+
             // why do this, I don't think they really need rearranging and its not behaving correctly
+            // this was used to rearrange nodes if their positions have corrupted after some usage. Generally
+            // showing labels might be followed by zoom/drag.
             //force.alpha(0.1).start();
         }
-        
+
         var edgeHighlight = function(d, highlight) {
             if(highlight) {
                 gedges.each(function(de){
@@ -346,10 +355,10 @@ var graphPlugins = {
             }
             filter.setOpacity();
         };
-        
+
         //Creates graph afresh from data available in force
         var buildGraph = function() {
-            
+
             //Render edges
             gedges = gedges.data(force.links()).enter().append('line')
                 .attr("class", "edge")
@@ -360,7 +369,7 @@ var graphPlugins = {
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
                 .attr("y2", function(d) { return d.target.y; });;
-        
+
             //Render nodes
             gnodes = gnodes.data(force.nodes()).enter().append('g').attr("class","node").each(function(d) {
                 // this is their initial position, very important
@@ -369,18 +378,18 @@ var graphPlugins = {
                 d.x = 0;
                 d.y = 0;
             }).attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-            
+
             gnodes.selectAll('circle').remove();
-            
+
             var circle = gnodes.append('circle').attr("class", "bubble");
             circle.attr("fill",function(d){ return d.color; })
                 .attr('r', 0).attr("stroke-width", 2)
                 .transition().duration(500).attr("r", function(d) {
                     d.r = rScale(d.rating);
-                    return d.r * d.zoom; 
+                    return d.r * d.zoom;
                 });
 //            circle.call(tip);
-            
+
             circle.on("mouseover",function(d) {
                 if(activeNode && d.id === activeNode.id) return;
                 tip.hide();
@@ -407,7 +416,7 @@ var graphPlugins = {
                 filter.enableConnected(d.id, type);
                 filter.layout(activeNode, rScale, config);*/
             });
-            
+
             //Render Text
             gnodes.append("text").text(function(d){return d.name.length > 12 ? (d.name.substr(0,10) + "..") : d.name;})
                     .style("opacity", 0).style("font-size", '10px')
@@ -423,22 +432,23 @@ var graphPlugins = {
                 }
                 tip.showActive(activeNode);
             });
-            
+
             // new function call to listen to filters immediately
             applyFilters();
-            
+
             showHideLabels();
-            
+
             // what is this doing? it's critical for drag anyway!
+            // Adds d3 drag event handler to nodes.
             //gnodes.call(force.drag);
             gnodes.call(drag);
-            
+
             startForce(0.1);
         };
-        
+
         // Load Data
         loadMovieData(url, config, rScale, buildGraph);
-        
+
         // hook up search box population
         addSuggester("input#movie", function(term) {
             var res = [];
